@@ -7,6 +7,10 @@ npm install
 npm run dev
 ```
 
+## Design
+
+Calm clinical, documented in `DESIGN.md`; product context in `PRODUCT.md`. Plain CSS tokens in `src/styles.css`, Motion for component animation, Lucide icons, Tailwind v4 utilities only for the copied Kokonut UI / VengeanceUI components (MIT).
+
 ## How the backend plugs in
 
 Every screen reads data through `src/api.js`. `src/data.js` holds the mock records and doubles as the
@@ -25,6 +29,8 @@ and an audit log before any patient goes into the system.
 | 3 ✅ | Scheduler | Daily chair × shift grid, recurring MWF / TThS slots, book / move / make-up sessions, status (done, no-show, cancelled), isolation-chair and double-booking checks |
 | 4 ✅ | POS & Billing + PhilHealth Claims | Per-session ledger split by payer: PhilHealth package vs. patient-paid add-on items, each line with cost and price so the clinic's margin is recorded. Receipts, 156-session counter, claim status. Billing consumes inventory (stock-out) |
 | 5 ✅ | Reports, Exports, CRM | Analytics: PhilHealth vs. out-of-pocket revenue, profit per patient / item / month, claims aging, stock usage. Export any table to CSV (opens in Excel). Follow-ups + automated emails via Resend (server-side only) |
+| — | Roles | Nurse, front desk, admin, doctor: each sees only their modules (doctors: patient profiles and labs; admin: everything). Arrives with real auth |
+| — | Lab inbox | Labs email results; Resend inbound → server parses the email/PDF → matches patient by PhilHealth PIN + name + birth date → staff confirm in a review queue → appended to the patient's labs. Never auto-written without review |
 | 6 | Payroll | Staff records, shifts worked (from the scheduler), pay with SSS / PhilHealth / Pag-IBIG / withholding tax, payslips, export |
 | 7 | Patient portal | Patients sign in online to view their own records: schedule, labs, PhilHealth sessions left, receipts. Needs the real backend first; the server must limit each patient to their own record |
 

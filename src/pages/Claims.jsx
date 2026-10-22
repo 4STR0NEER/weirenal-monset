@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Download } from 'lucide-react'
+import { AnimatedNumber } from '../components/vengeance/animated-number.jsx'
 import { getClaims, setClaimStatus, useLoad, peso } from '../api.js'
 import { CLAIM_STATUSES } from '../data.js'
 import { downloadCSV } from '../csv.js'
@@ -27,16 +29,16 @@ export default function Claims() {
           <h1>PhilHealth Claims</h1>
           <p className="muted">One claim per billed HD session. Move each one along as PhilHealth processes it.</p>
         </div>
-        <button className="btn ghost" disabled={!claims?.length} onClick={() => downloadCSV(`philhealth-claims${status && '-' + status.toLowerCase()}.csv`, claims)}>Export CSV</button>
+        <button className="btn ghost" disabled={!claims?.length} onClick={() => downloadCSV(`philhealth-claims${status && '-' + status.toLowerCase()}.csv`, claims)}><Download aria-hidden /> Export CSV</button>
       </header>
 
       <div className="stats">
         {CLAIM_STATUSES.map((s) => {
           const these = all?.filter((c) => c.claim === s) ?? []
           return (
-            <button key={s} className={'card stat stat-btn' + (status === s ? ' active' : '')} onClick={() => setStatus(status === s ? '' : s)}>
+            <button key={s} className={'stat stat-btn' + (status === s ? ' active' : '')} onClick={() => setStatus(status === s ? '' : s)}>
               <span className="muted">{s} ({these.length})</span>
-              <strong>{peso(these.reduce((t, c) => t + c.amount, 0))}</strong>
+              <strong><AnimatedNumber value={peso(these.reduce((t, c) => t + c.amount, 0))} /></strong>
             </button>
           )
         })}

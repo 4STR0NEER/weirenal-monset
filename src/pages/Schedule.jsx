@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { getSchedule, getPatients, saveBooking, todayISO, addDays, useLoad } from '../api.js'
 import { CHAIRS, SHIFTS, ISOLATION_CHAIRS } from '../data.js'
 
@@ -43,10 +44,10 @@ export default function Schedule() {
           <h1>Scheduler</h1>
           <p className="muted">{new Date(date + 'T00:00').toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
         </div>
-        <div className="row">
-          <button className="btn ghost" onClick={() => setDate(addDays(date, -1))} aria-label="Previous day">‹</button>
+        <div className="date-nav">
+          <button className="btn ghost icon" onClick={() => setDate(addDays(date, -1))} aria-label="Previous day"><ChevronLeft aria-hidden /></button>
           <input type="date" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} aria-label="Date" />
-          <button className="btn ghost" onClick={() => setDate(addDays(date, 1))} aria-label="Next day">›</button>
+          <button className="btn ghost icon" onClick={() => setDate(addDays(date, 1))} aria-label="Next day"><ChevronRight aria-hidden /></button>
           <button className="btn ghost" onClick={() => setDate(todayISO())}>Today</button>
         </div>
       </header>
@@ -87,7 +88,7 @@ export default function Schedule() {
 
           <section className="card">
             <div className="table-wrap">
-              <table className="grid">
+              <table className="sched">
                 <thead>
                   <tr><th>Chair</th>{Object.entries(SHIFTS).map(([s, t]) => <th key={s}>{s} · {t}</th>)}</tr>
                 </thead>
@@ -109,7 +110,7 @@ export default function Schedule() {
                                 </select>
                               </div>
                             ))}
-                            {free && <button className="link" onClick={() => setBooking({ chair, shift })}>+ Book</button>}
+                            {free && <button className="slot-add" onClick={() => setBooking({ chair, shift })} aria-label={`Book chair ${chair}, ${shift} shift`}><Plus aria-hidden /> Book</button>}
                           </td>
                         )
                       })}

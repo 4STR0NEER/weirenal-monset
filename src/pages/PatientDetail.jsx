@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router'
+import { ArrowLeft, Pencil, TriangleAlert } from 'lucide-react'
 import { getPatient, useLoad, age, peso } from '../api.js'
 import { packages, PHILHEALTH_SESSIONS_PER_YEAR } from '../data.js'
 import { Flags } from './Patients.jsx'
@@ -16,16 +17,16 @@ export default function PatientDetail() {
 
   return (
     <>
-      <Link className="back" to="/app/patients">← Patients</Link>
+      <Link className="back" to="/app/patients"><ArrowLeft aria-hidden /> Patients</Link>
       <header className="page-head row-between">
         <div>
           <h1>{p.name} <Flags p={p} /></h1>
           <p className="muted">{age(p.birthDate)} yrs · {p.sex === 'M' ? 'Male' : 'Female'} · {p.diagnosis}</p>
         </div>
-        <Link className="btn ghost" to="edit">Edit</Link>
+        <Link className="btn ghost" to="edit"><Pencil aria-hidden /> Edit</Link>
       </header>
 
-      {p.notes && <p className="note">{p.notes}</p>}
+      {p.notes && <p className="note"><TriangleAlert aria-hidden />{p.notes}</p>}
 
       <div className="detail-grid">
         <section className="card">
@@ -40,7 +41,7 @@ export default function PatientDetail() {
                 <dt>Sessions this year</dt>
                 <dd>
                   {p.philhealthUsed} / {PHILHEALTH_SESSIONS_PER_YEAR}
-                  <meter min="0" max={PHILHEALTH_SESSIONS_PER_YEAR} high="140" optimum="0" value={p.philhealthUsed} />
+                  <span className={'meter' + (p.philhealthUsed >= 140 ? ' hot' : '')} role="presentation"><i style={{ width: `${(p.philhealthUsed / PHILHEALTH_SESSIONS_PER_YEAR) * 100}%` }} /></span>
                 </dd>
                 <dt>Remaining</dt><dd className={remaining <= 16 ? 'warn' : ''}>{remaining} sessions ({peso(remaining * HD_RATE)})</dd>
               </>

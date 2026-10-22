@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Search } from 'lucide-react'
 import { getInventory, useLoad } from '../api.js'
 
 const CATEGORIES = ['Dialyzers', 'Bloodlines', 'Needles', 'Concentrates', 'Medicines', 'PD Supplies', 'Supplies']
@@ -16,7 +17,7 @@ export default function Inventory() {
       </header>
 
       <div className="filters">
-        <input type="search" placeholder="e.g. dialyzer, MED-EPO" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search inventory" />
+        <label className="search"><Search aria-hidden /><input type="search" placeholder="e.g. dialyzer, MED-EPO" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search inventory" /></label>
         <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Category">
           <option value="">All categories</option>
           {CATEGORIES.map((c) => <option key={c}>{c}</option>)}

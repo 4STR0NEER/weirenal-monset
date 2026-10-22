@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Download } from 'lucide-react'
+import { AnimatedNumber } from '../components/vengeance/animated-number.jsx'
 import { getReport, todayISO, useLoad, peso } from '../api.js'
 import { downloadCSV } from '../csv.js'
 
@@ -17,7 +19,7 @@ export default function Reports() {
         </div>
         <div className="row">
           <input type="month" value={month} onChange={(e) => e.target.value && setMonth(e.target.value)} aria-label="Month" />
-          <button className="btn ghost" disabled={!r?.ledger.length} onClick={() => downloadCSV(`ledger-${month}.csv`, r.ledger)}>Export full ledger</button>
+          <button className="btn ghost" disabled={!r?.ledger.length} onClick={() => downloadCSV(`ledger-${month}.csv`, r.ledger)}><Download aria-hidden /> Export full ledger</button>
         </div>
       </header>
 
@@ -51,9 +53,9 @@ export default function Reports() {
 
 function Stat({ label, value, sub }) {
   return (
-    <div className="card stat">
+    <div className="stat">
       <span className="muted">{label}</span>
-      <strong>{value}</strong>
+      <strong><AnimatedNumber value={value} /></strong>
       {sub && <span className="fine">{sub}</span>}
     </div>
   )
@@ -65,7 +67,7 @@ function Table({ title, file, rows, cols }) {
     <section className="card">
       <div className="row-between">
         <h2>{title}</h2>
-        <button className="btn ghost" disabled={!rows.length} onClick={() => downloadCSV(file, rows)}>Export CSV</button>
+        <button className="btn ghost" disabled={!rows.length} onClick={() => downloadCSV(file, rows)}><Download aria-hidden /> Export CSV</button>
       </div>
       {rows.length === 0 ? <p className="muted">No billed sessions this month.</p> : (
         <div className="table-wrap">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { login } from '../api.js'
+import Logo from '../components/Logo.jsx'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -24,13 +25,16 @@ export default function Login() {
   return (
     <main className="auth">
       <form className="card auth-card" onSubmit={onSubmit}>
-        <Link to="/" className="logo"><span className="logo-mark" aria-hidden>W</span>WEI Renal Care</Link>
-        <h1>Staff sign in</h1>
+        <Link to="/" className="logo"><Logo /></Link>
+        <div>
+          <h1>Staff sign in</h1>
+          <p className="muted">Nurses, front desk, doctors and admin.</p>
+        </div>
         <label>Email<input name="email" type="email" autoComplete="username" required /></label>
         <label>Password<input name="password" type="password" autoComplete="current-password" required /></label>
         {error && <p className="error" role="alert">{error}</p>}
         <button className="btn" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
-        <p className="fine">Mock mode: any email and password works.</p>
+        <p className="fine">Demo mode: any email and password works.</p>
       </form>
     </main>
   )

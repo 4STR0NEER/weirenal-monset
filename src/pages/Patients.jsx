@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+import { Search, UserPlus } from 'lucide-react'
 import { getPatients, useLoad, age } from '../api.js'
 import { PHILHEALTH_SESSIONS_PER_YEAR } from '../data.js'
 
@@ -16,11 +17,11 @@ export default function Patients() {
           <h1>Patients</h1>
           <p className="muted">Search by name or PhilHealth PIN.</p>
         </div>
-        <Link className="btn" to="new">Add patient</Link>
+        <Link className="btn" to="new"><UserPlus aria-hidden /> Add patient</Link>
       </header>
 
       <div className="filters">
-        <input type="search" placeholder="e.g. Ramos, 12-3456" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search patients" />
+        <label className="search"><Search aria-hidden /><input type="search" placeholder="e.g. Ramos, 12-3456" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search patients" /></label>
         <select value={modality} onChange={(e) => setModality(e.target.value)} aria-label="Modality">
           <option value="">All modalities</option>
           <option value="HD">Hemodialysis</option>
@@ -43,7 +44,7 @@ export default function Patients() {
                   <tr key={p.id}>
                     <td><Link className="name-link" to={String(p.id)}>{p.name}</Link></td>
                     <td>{age(p.birthDate)} / {p.sex}</td>
-                    <td><span className="pill">{p.modality}</span></td>
+                    <td><span className="pill plain">{p.modality}</span></td>
                     <td>{p.schedule ? `${p.schedule} · ${p.shift}` : '–'}</td>
                     <td>{p.access}</td>
                     <td className={p.philhealthUsed >= 140 ? 'warn' : ''}>

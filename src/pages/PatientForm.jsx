@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
+import { ArrowLeft } from 'lucide-react'
 import { getPatient, savePatient, useLoad } from '../api.js'
 import { CHAIRS } from '../data.js'
 
@@ -34,7 +35,7 @@ export default function PatientForm() {
 
   return (
     <>
-      <Link className="back" to={id ? `/app/patients/${id}` : '/app/patients'}>← Back</Link>
+      <Link className="back" to={id ? `/app/patients/${id}` : '/app/patients'}><ArrowLeft aria-hidden /> Back</Link>
       <header className="page-head"><h1>{id ? `Edit ${p.name}` : 'Add patient'}</h1></header>
 
       <form className="card form" onSubmit={onSubmit}>

@@ -1,4 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import { fileURLToPath } from 'node:url'
 
-export default defineConfig({ plugins: [react()] })
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  // `@/` is the import path the copied Kokonut / Vengeance components expect
+  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
+})

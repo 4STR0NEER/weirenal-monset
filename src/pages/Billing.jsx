@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { ArrowLeft, Printer, TriangleAlert } from 'lucide-react'
+import { QuantityStepper } from '../components/kokonutui/quantity-stepper.jsx'
+import { AnimatedNumber } from '../components/vengeance/animated-number.jsx'
 import { getBilling, billSession, todayISO, useLoad, peso, PAY_METHODS } from '../api.js'
 import { PHILHEALTH_SESSIONS_PER_YEAR, SELF_PAY_RATE } from '../data.js'
 
@@ -93,14 +96,14 @@ function Checkout({ date, s, addOns, onBilled }) {
         <span>{covered ? 'HD session package' : 'HD session (self-pay)'}</span>
         <strong>{covered ? 'PhilHealth' : 'Patient'}</strong>
       </div>
-      {!covered && <p className="note">PhilHealth's {PHILHEALTH_SESSIONS_PER_YEAR} sessions are used up; this session is self-pay.</p>}
+      {!covered && <p className="note"><TriangleAlert aria-hidden />PhilHealth's {PHILHEALTH_SESSIONS_PER_YEAR} sessions are used up; this session is self-pay.</p>}
 
       <h3>Add-ons (patient pays)</h3>
       {addOns.map((a) => (
-        <label key={a.id} className="addon">
-          <span>{a.name} <span className="muted">{peso(a.price)}</span></span>
-          <input type="number" min="0" max="20" value={qty[a.id] ?? 0} onChange={(e) => setQty({ ...qty, [a.id]: Math.max(0, Math.min(20, parseInt(e.target.value) || 0)) })} />
-        </label>
+        <div key={a.id} className="addon">
+          <span>{a.name}<span className="muted">{peso(a.price)} each</span></span>
+          <QuantityStepper name={a.name} max={20} quantity={qty[a.id] ?? 0} onQuantityChange={(n) => setQty((q) => ({ ...q, [a.id]: n }))} />
+        </div>
       ))}
 
       <label>Payment method
@@ -109,7 +112,7 @@ function Checkout({ date, s, addOns, onBilled }) {
 
       <div className="total">
         <span>Patient pays</span>
-        <strong>{peso(extras + (covered ? 0 : SELF_PAY_RATE))}</strong>
+        <strong><AnimatedNumber value={peso(extras + (covered ? 0 : SELF_PAY_RATE))} /></strong>
       </div>
       {error && <p className="error" role="alert">{error}</p>}
       <button className="btn" disabled={busy} onClick={submit}>{busy ? 'Billing…' : 'Complete bill'}</button>
@@ -121,8 +124,8 @@ function Receipt({ r, onDone }) {
   return (
     <>
       <div className="row no-print">
-        <button className="btn ghost" onClick={onDone}>← Back to billing</button>
-        <button className="btn" onClick={() => window.print()}>Print receipt</button>
+        <button className="btn ghost" onClick={onDone}><ArrowLeft aria-hidden /> Back to billing</button>
+        <button className="btn" onClick={() => window.print()}><Printer aria-hidden /> Print receipt</button>
       </div>
       <article className="card receipt">
         <header>

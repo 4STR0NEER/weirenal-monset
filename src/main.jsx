@@ -25,8 +25,8 @@ function Soon({ mod }) {
   return (
     <div className="card empty">
       <h2>{mod.label}</h2>
-      <p>{mod.blurb}</p>
-      <span className="badge">Phase {mod.phase}</span>
+      <p className="muted">{mod.blurb}</p>
+      <span className="pill plain">Coming in phase {mod.phase}</span>
     </div>
   )
 }
