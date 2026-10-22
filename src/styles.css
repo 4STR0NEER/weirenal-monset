@@ -118,6 +118,22 @@ tbody tr:hover { background: var(--blue-50); }
 .pill.flag { background: #fde8e8; color: #b42318; margin-right: 4px; vertical-align: middle; }
 .note { margin: 0; padding: 12px 16px; border-radius: var(--radius); background: var(--warn-bg); color: var(--warn); font-weight: 500; }
 
+.pill.no-show { background: var(--warn-bg); color: var(--warn); }
+.pill.cancelled { background: #f1f4f7; color: var(--muted); text-decoration: line-through; }
+.error.banner { padding: 12px 16px; border-radius: var(--radius); background: #fde8e8; }
+
+/* Scheduler */
+.grid th[scope="row"] { color: var(--ink); font-size: .9rem; text-transform: none; }
+.grid td { vertical-align: top; min-width: 190px; }
+.slot { display: grid; gap: 4px; padding: 8px 10px; margin-bottom: 6px; border-radius: 10px; background: var(--blue-50); border-left: 3px solid var(--blue-500); }
+.slot.done { border-left-color: var(--ok); background: var(--ok-bg); }
+.slot.on-machine { border-left-color: var(--blue-600); background: var(--blue-100); }
+.slot.no-show { border-left-color: var(--warn); background: var(--warn-bg); }
+.slot.cancelled { border-left-color: var(--line); background: #f7f9fb; opacity: .7; }
+.slot select { padding: 4px 8px; font-size: .8rem; }
+.form-inline { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.form-inline .full { flex-basis: 100%; margin: 0; }
+
 /* Patient detail */
 .detail-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 dl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; margin: 0; font-size: .92rem; }

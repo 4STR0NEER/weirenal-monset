@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { getPatient, savePatient, useLoad } from '../api.js'
+import { CHAIRS } from '../data.js'
 
-const NUMBERS = ['dryWeight', 'bloodFlow', 'hours']
+const NUMBERS = ['dryWeight', 'bloodFlow', 'hours', 'chair']
 
 // One form for add (/patients/new) and edit (/patients/:id/edit).
 export default function PatientForm() {
@@ -74,6 +75,7 @@ export default function PatientForm() {
             <label>Shift
               <select name="shift" defaultValue={p.shift}><option>AM</option><option>Mid</option><option>PM</option></select>
             </label>
+            <label>Regular chair<input name="chair" type="number" min="1" max={CHAIRS} defaultValue={p.chair ?? 1} required /></label>
             <label>Dialyzer<input name="dialyzer" defaultValue={p.dialyzer ?? 'F8 HPS'} /></label>
             <label>Blood flow (mL/min)<input name="bloodFlow" type="number" min="100" max="500" defaultValue={p.bloodFlow ?? 300} /></label>
             <label>Hours per session<input name="hours" type="number" min="2" max="6" step="0.5" defaultValue={p.hours ?? 4} /></label>

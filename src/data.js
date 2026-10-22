@@ -55,42 +55,49 @@ const hd = (o) => ({ modality: 'HD', dialyzer: 'F8 HPS', bloodFlow: 300, hours: 
 
 export const patients = [
   hd({ id: 1, name: 'Ramon Dela Cruz', birthDate: '1961-03-14', sex: 'M', phone: '0917 555 0101', email: 'ramon.dc@example.com', emergencyContact: 'Ana Dela Cruz (wife) 0917 555 0102',
-    philhealthPin: '12-345678901-2', membership: 'Member', diagnosis: 'CKD 5 — diabetic nephropathy', schedule: 'MWF', shift: 'AM', access: 'AV fistula, left forearm', dryWeight: 62.5, philhealthUsed: 88,
+    philhealthPin: '12-345678901-2', membership: 'Member', diagnosis: 'CKD 5 — diabetic nephropathy', schedule: 'MWF', shift: 'AM', chair: 1, access: 'AV fistula, left forearm', dryWeight: 62.5, philhealthUsed: 88,
     labs: [{ date: '2026-10-01', hgb: 10.8, potassium: 5.1, albumin: 3.8, ktv: 1.4 }, { date: '2026-09-01', hgb: 10.2, potassium: 5.4, albumin: 3.7, ktv: 1.3 }] }),
   hd({ id: 2, name: 'Liza Manalo', birthDate: '1958-07-22', sex: 'F', phone: '0918 555 0201', email: 'liza.manalo@example.com', emergencyContact: 'Paolo Manalo (son) 0918 555 0202',
-    philhealthPin: '19-876543210-5', membership: 'Dependent', diagnosis: 'CKD 5 — hypertensive nephrosclerosis', schedule: 'MWF', shift: 'AM', access: 'AV graft, right upper arm', dryWeight: 54, philhealthUsed: 142,
+    philhealthPin: '19-876543210-5', membership: 'Dependent', diagnosis: 'CKD 5 — hypertensive nephrosclerosis', schedule: 'MWF', shift: 'AM', chair: 2, access: 'AV graft, right upper arm', dryWeight: 54, philhealthUsed: 142,
     labs: [{ date: '2026-10-01', hgb: 9.6, potassium: 5.8, albumin: 3.4, ktv: 1.2 }] }),
   hd({ id: 3, name: 'Teodoro Ramos', birthDate: '1970-11-05', sex: 'M', phone: '0919 555 0301', email: '', emergencyContact: 'Rosa Ramos (sister) 0919 555 0302',
-    philhealthPin: '03-112233445-6', membership: 'Member', diagnosis: 'CKD 5 — chronic glomerulonephritis', schedule: 'MWF', shift: 'AM', access: 'Tunneled catheter, right IJ', dryWeight: 70, philhealthUsed: 31,
+    philhealthPin: '03-112233445-6', membership: 'Member', diagnosis: 'CKD 5 — chronic glomerulonephritis', schedule: 'MWF', shift: 'AM', chair: 3, access: 'Tunneled catheter, right IJ', dryWeight: 70, philhealthUsed: 31,
     notes: 'Fistula maturing; plan to switch access in December.',
     labs: [{ date: '2026-10-01', hgb: 11.2, potassium: 4.7, albumin: 4.0, ktv: 1.5 }] }),
   hd({ id: 4, name: 'Cecilia Bautista', birthDate: '1955-02-18', sex: 'F', phone: '0920 555 0401', email: 'cbautista@example.com', emergencyContact: 'Mario Bautista (husband) 0920 555 0402',
-    philhealthPin: '08-998877665-4', membership: 'Senior citizen', diagnosis: 'CKD 5 — diabetic nephropathy', schedule: 'MWF', shift: 'Mid', access: 'AV fistula, left upper arm', dryWeight: 58, philhealthUsed: 120 }),
+    philhealthPin: '08-998877665-4', membership: 'Senior citizen', diagnosis: 'CKD 5 — diabetic nephropathy', schedule: 'MWF', shift: 'Mid', chair: 1, access: 'AV fistula, left upper arm', dryWeight: 58, philhealthUsed: 120 }),
   hd({ id: 5, name: 'Arnel Villanueva', birthDate: '1968-09-30', sex: 'M', phone: '0921 555 0501', email: 'arnel.v@example.com', emergencyContact: 'Joy Villanueva (wife) 0921 555 0502',
-    philhealthPin: '11-443322110-9', membership: 'Member', diagnosis: 'CKD 5 — polycystic kidney disease', schedule: 'MWF', shift: 'Mid', access: 'AV fistula, right forearm', dryWeight: 75, philhealthUsed: 154,
+    philhealthPin: '11-443322110-9', membership: 'Member', diagnosis: 'CKD 5 — polycystic kidney disease', schedule: 'MWF', shift: 'Mid', chair: 4, access: 'AV fistula, right forearm', dryWeight: 75, philhealthUsed: 154,
     hbsag: 'Positive', notes: 'Isolation machine (chair 4) only.',
     labs: [{ date: '2026-10-01', hgb: 10.1, potassium: 5.0, albumin: 3.6, ktv: 1.3 }] }),
   hd({ id: 6, name: 'Maricel Santos', birthDate: '1982-05-12', sex: 'F', phone: '0922 555 0601', email: 'maricel.s@example.com', emergencyContact: 'Ben Santos (brother) 0922 555 0602',
-    philhealthPin: '15-667788990-1', membership: 'Member', diagnosis: 'CKD 5 — lupus nephritis', schedule: 'MWF', shift: 'PM', access: 'AV fistula, left forearm', dryWeight: 49, philhealthUsed: 12 }),
+    philhealthPin: '15-667788990-1', membership: 'Member', diagnosis: 'CKD 5 — lupus nephritis', schedule: 'MWF', shift: 'PM', chair: 2, access: 'AV fistula, left forearm', dryWeight: 49, philhealthUsed: 12 }),
   hd({ id: 7, name: 'Joel Mendoza', birthDate: '1964-12-01', sex: 'M', phone: '0923 555 0701', email: '', emergencyContact: 'Liza Mendoza (daughter) 0923 555 0702',
-    philhealthPin: '02-554433221-7', membership: 'Member', diagnosis: 'CKD 5 — diabetic nephropathy', schedule: 'MWF', shift: 'PM', access: 'AV fistula, left forearm', dryWeight: 68, philhealthUsed: 97 }),
+    philhealthPin: '02-554433221-7', membership: 'Member', diagnosis: 'CKD 5 — diabetic nephropathy', schedule: 'MWF', shift: 'PM', chair: 3, access: 'AV fistula, left forearm', dryWeight: 68, philhealthUsed: 97 }),
   hd({ id: 8, name: 'Grace Lim', birthDate: '1975-04-09', sex: 'F', phone: '0924 555 0801', email: 'grace.lim@example.com', emergencyContact: 'Henry Lim (husband) 0924 555 0802',
-    philhealthPin: '13-221100998-3', membership: 'Member', diagnosis: 'CKD 5 — IgA nephropathy', schedule: 'TThS', shift: 'AM', access: 'AV fistula, left forearm', dryWeight: 55.5, philhealthUsed: 60 }),
+    philhealthPin: '13-221100998-3', membership: 'Member', diagnosis: 'CKD 5 — IgA nephropathy', schedule: 'TThS', shift: 'AM', chair: 1, access: 'AV fistula, left forearm', dryWeight: 55.5, philhealthUsed: 60 }),
   { id: 9, name: 'Nestor Aquino', birthDate: '1972-08-17', sex: 'M', phone: '0925 555 0901', email: 'nestor.a@example.com', emergencyContact: 'Carla Aquino (wife) 0925 555 0902',
-    philhealthPin: '07-123987456-0', membership: 'Member', diagnosis: 'CKD 5 — hypertensive nephrosclerosis', modality: 'PD', schedule: '', shift: '', access: 'PD catheter',
+    philhealthPin: '07-123987456-0', membership: 'Member', diagnosis: 'CKD 5 — hypertensive nephrosclerosis', modality: 'PD', schedule: '', shift: '', chair: null, access: 'PD catheter',
     dryWeight: 66, dialyzer: '', bloodFlow: null, hours: null, hbsag: 'Negative', antiHcv: 'Negative', philhealthUsed: null,
     notes: 'CAPD, 4 exchanges a day. Monthly clinic review.', labs: [] },
+  hd({ id: 10, name: 'Rodelio Garcia', birthDate: '1959-06-25', sex: 'M', phone: '0926 555 1001', email: '', emergencyContact: 'Nora Garcia (wife) 0926 555 1002',
+    philhealthPin: '05-334455667-8', membership: 'Senior citizen', diagnosis: 'CKD 5 — diabetic nephropathy', schedule: 'TThS', shift: 'AM', chair: 2, access: 'AV fistula, left forearm', dryWeight: 64, philhealthUsed: 133 }),
+  hd({ id: 11, name: 'Josefina Cruz', birthDate: '1963-01-11', sex: 'F', phone: '0927 555 1101', email: 'josie.cruz@example.com', emergencyContact: 'Dan Cruz (son) 0927 555 1102',
+    philhealthPin: '09-778899001-2', membership: 'Member', diagnosis: 'CKD 5 — hypertensive nephrosclerosis', schedule: 'TThS', shift: 'Mid', chair: 3, access: 'AV graft, left upper arm', dryWeight: 57, philhealthUsed: 75 }),
+  hd({ id: 12, name: 'Eduardo Reyes', birthDate: '1977-10-03', sex: 'M', phone: '0928 555 1201', email: 'ed.reyes@example.com', emergencyContact: 'Mila Reyes (wife) 0928 555 1202',
+    philhealthPin: '14-112200334-5', membership: 'Member', diagnosis: 'CKD 5 — chronic glomerulonephritis', schedule: 'TThS', shift: 'PM', chair: 5, access: 'AV fistula, right forearm', dryWeight: 72, philhealthUsed: 44 }),
 ]
 
-export const sessionsToday = [
-  { id: 1, time: '06:00', patientId: 1, chair: 1, status: 'Done' },
-  { id: 2, time: '06:00', patientId: 2, chair: 2, status: 'Done' },
-  { id: 3, time: '06:00', patientId: 3, chair: 3, status: 'Done' },
-  { id: 4, time: '10:30', patientId: 4, chair: 1, status: 'On machine' },
-  { id: 5, time: '10:30', patientId: 5, chair: 4, status: 'On machine' },
-  { id: 6, time: '15:00', patientId: 6, chair: 2, status: 'Scheduled' },
-  { id: 7, time: '15:00', patientId: 7, chair: 3, status: 'Scheduled' },
+// Daily schedule = each HD patient's recurring slot (schedule + shift + chair),
+// with these per-date exceptions applied: moves, make-ups, no-shows, cancellations.
+export const bookings = [
+  { date: '2026-10-12', patientId: 7, status: 'No-show' },
+  { date: '2026-10-19', patientId: 7, status: 'No-show' },
+  { date: '2026-10-21', patientId: 6, status: 'Cancelled' },
 ]
 
+export const SHIFTS = { AM: '06:00', Mid: '10:30', PM: '15:00' }
+export const DAYS = { MWF: [1, 3, 5], TThS: [2, 4, 6] } // Date#getDay(); Sunday closed
+export const ISOLATION_CHAIRS = [4] // HBsAg-positive patients only
 export const CHAIRS = 12
 export const PHILHEALTH_SESSIONS_PER_YEAR = 156

@@ -29,7 +29,7 @@ export default function Overview() {
               <thead><tr><th>Time</th><th>Patient</th><th>Chair</th><th>PhilHealth sessions</th><th>Status</th></tr></thead>
               <tbody>
                 {sessions.map((s) => (
-                  <tr key={s.id}>
+                  <tr key={s.patientId}>
                     <td>{s.time}</td>
                     <td><Link className="name-link" to={`/app/patients/${s.patientId}`}>{s.patient}</Link></td>
                     <td>{s.chair}</td>

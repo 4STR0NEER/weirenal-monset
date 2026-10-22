@@ -6,12 +6,13 @@ import { currentUser, logout } from '../api.js'
 export const MODULES = [
   { path: 'overview', label: 'Overview', phase: 1 },
   { path: 'patients', label: 'Patients', phase: 2 },
-  { path: 'schedule', label: 'Scheduler', phase: 3, blurb: 'Chair and shift booking (MWF / TThS), recurring sessions, no-show tracking.' },
-  { path: 'billing', label: 'POS & Billing', phase: 4, blurb: 'Per-session billing, PhilHealth deduction, out-of-pocket items, official receipts.' },
+  { path: 'schedule', label: 'Scheduler', phase: 3 },
+  { path: 'billing', label: 'POS & Billing', phase: 4, blurb: 'Per-session ledger: what PhilHealth pays, what the patient pays for add-on items, and the clinic\'s margin on each. Official receipts.' },
   { path: 'philhealth', label: 'PhilHealth Claims', phase: 4, blurb: 'Session counter against the 156/year cap, claim forms, claim status tracking.' },
   { path: 'inventory', label: 'Inventory', phase: 1 },
   { path: 'crm', label: 'CRM & Reminders', phase: 5, blurb: 'Patient follow-ups and automatic session reminders by email (Resend).' },
-  { path: 'reports', label: 'Reports', phase: 5, blurb: 'Sessions, revenue, claims and stock usage over time.' },
+  { path: 'reports', label: 'Reports & Exports', phase: 5, blurb: 'PhilHealth vs. out-of-pocket revenue, profit per patient and per item, claims and stock usage. Export to CSV / Excel.' },
+  { path: 'payroll', label: 'Payroll', phase: 6, blurb: 'Staff records, shifts worked, pay computation with SSS, PhilHealth, Pag-IBIG and withholding tax, payslips.' },
 ]
 
 export default function AppShell() {

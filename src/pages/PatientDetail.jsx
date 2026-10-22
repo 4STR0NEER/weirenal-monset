@@ -53,7 +53,8 @@ export default function PatientDetail() {
           <dl>
             <dt>Modality</dt><dd>{p.modality === 'HD' ? 'Hemodialysis' : 'Peritoneal dialysis'}</dd>
             {p.modality === 'HD' && <>
-              <dt>Schedule</dt><dd>{p.schedule} · {p.shift} shift</dd>
+              <dt>Schedule</dt><dd>{p.schedule} · {p.shift} shift · chair {p.chair}</dd>
+              <dt>No-shows</dt><dd className={p.noShows.length ? 'warn' : ''}>{p.noShows.length ? `${p.noShows.length} (last: ${p.noShows.at(-1)})` : 'None'}</dd>
               <dt>Dialyzer</dt><dd>{p.dialyzer}</dd>
               <dt>Blood flow</dt><dd>{p.bloodFlow} mL/min · {p.hours} hrs</dd>
             </>}

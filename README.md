@@ -22,12 +22,14 @@ and an audit log before any patient goes into the system.
 |---|---|---|
 | 1 ✅ | Landing + Auth + Dashboard shell | Public page with PhilHealth packages, staff sign-in, sidebar, overview, inventory lookup |
 | 2 ✅ | Patients | Searchable list, profile (PhilHealth sessions left, prescription, access, hepatitis flags, labs), add/edit form |
-| 3 | Scheduler | Chairs × shifts (MWF / TThS), recurring sessions, no-shows |
-| 4 | POS & Billing + PhilHealth Claims | Per-session billing, PhilHealth deduction, 156-session counter, claim status |
-| 5 | CRM & Reminders + Reports | Follow-ups, automated emails via Resend (server-side only), reports |
-| 6 | Patient portal | Patients sign in online to view their own records: schedule, labs, PhilHealth sessions left, receipts. Needs the real backend first; the server must limit each patient to their own record |
+| 3 ✅ | Scheduler | Daily chair × shift grid, recurring MWF / TThS slots, book / move / make-up sessions, status (done, no-show, cancelled), isolation-chair and double-booking checks |
+| 4 | POS & Billing + PhilHealth Claims | Per-session ledger split by payer: PhilHealth package vs. patient-paid add-on items, each line with cost and price so the clinic's margin is recorded. Receipts, 156-session counter, claim status. Billing consumes inventory (stock-out) |
+| 5 | Reports, Exports, CRM | Analytics: PhilHealth vs. out-of-pocket revenue, profit per patient / item / month, claims aging, stock usage. Export any table to CSV (opens in Excel). Follow-ups + automated emails via Resend (server-side only) |
+| 6 | Payroll | Staff records, shifts worked (from the scheduler), pay with SSS / PhilHealth / Pag-IBIG / withholding tax, payslips, export |
+| 7 | Patient portal | Patients sign in online to view their own records: schedule, labs, PhilHealth sessions left, receipts. Needs the real backend first; the server must limit each patient to their own record |
 
-Inventory grows from lookup to stock-in/stock-out once billing consumes supplies (phase 4).
+Bookkeeping rule for phase 4: every session produces ledger lines `{ payer: 'PhilHealth' | 'Patient', item, qty, unitPrice, unitCost }`.
+Revenue, PhilHealth receivables and profit are all sums over those lines, so reports and exports in phase 5 need no extra data.
 
 ## PhilHealth rates used
 

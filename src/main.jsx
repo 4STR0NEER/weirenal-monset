@@ -9,9 +9,10 @@ import Inventory from './pages/Inventory.jsx'
 import Patients from './pages/Patients.jsx'
 import PatientDetail from './pages/PatientDetail.jsx'
 import PatientForm from './pages/PatientForm.jsx'
+import Schedule from './pages/Schedule.jsx'
 import './styles.css'
 
-const built = { overview: <Overview />, inventory: <Inventory />, patients: <Patients /> }
+const built = { overview: <Overview />, inventory: <Inventory />, patients: <Patients />, schedule: <Schedule /> }
 
 function Soon({ mod }) {
   return (
