@@ -10,9 +10,16 @@ import Patients from './pages/Patients.jsx'
 import PatientDetail from './pages/PatientDetail.jsx'
 import PatientForm from './pages/PatientForm.jsx'
 import Schedule from './pages/Schedule.jsx'
+import Billing from './pages/Billing.jsx'
+import Claims from './pages/Claims.jsx'
+import Reports from './pages/Reports.jsx'
+import Crm from './pages/Crm.jsx'
 import './styles.css'
 
-const built = { overview: <Overview />, inventory: <Inventory />, patients: <Patients />, schedule: <Schedule /> }
+const built = {
+  overview: <Overview />, inventory: <Inventory />, patients: <Patients />, schedule: <Schedule />,
+  billing: <Billing />, philhealth: <Claims />, reports: <Reports />, crm: <Crm />,
+}
 
 function Soon({ mod }) {
   return (

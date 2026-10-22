@@ -134,6 +134,37 @@ tbody tr:hover { background: var(--blue-50); }
 .form-inline { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
 .form-inline .full { flex-basis: 100%; margin: 0; }
 
+/* Billing */
+.split { display: grid; gap: 20px; grid-template-columns: minmax(240px, 1fr) minmax(300px, 1.4fr); align-items: start; }
+.pick-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.pick-list button { width: 100%; display: grid; gap: 2px; text-align: left; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--white); font: inherit; color: inherit; cursor: pointer; }
+.pick-list button:hover { background: var(--blue-50); }
+.pick-list button.active { border-color: var(--blue-500); background: var(--blue-50); }
+.checkout { display: grid; gap: 12px; }
+.checkout h3 { font-size: .95rem; margin-top: 8px; }
+.line-item { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 10px; background: var(--warn-bg); }
+.line-item.covered { background: var(--ok-bg); color: var(--ok); }
+.addon { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-weight: 400; }
+.addon input { width: 72px; }
+.total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 12px; border-top: 1px solid var(--line); }
+.total strong { font-size: 1.5rem; }
+.receipt { max-width: 560px; display: grid; gap: 12px; }
+.receipt header { display: flex; justify-content: space-between; }
+.stat-btn { font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.stat-btn.active { border-color: var(--blue-500); }
+.inline-dl { display: flex; flex-wrap: wrap; gap: 24px; }
+.inline-dl div { display: grid; gap: 2px; }
+.pill.noshow { background: var(--warn-bg); color: var(--warn); }
+.pill.labs { background: #fde8e8; color: #b42318; }
+.mail { border-top: 1px solid var(--line); padding: 10px 0; }
+.mail pre { white-space: pre-wrap; font: inherit; color: var(--muted); margin: 8px 0 0; }
+@media (max-width: 760px) { .split { grid-template-columns: 1fr; } }
+@media print {
+  .sidebar, .no-print { display: none !important; }
+  .shell { display: block; background: none; }
+  .card { box-shadow: none; border: 0; }
+}
+
 /* Patient detail */
 .detail-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 dl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; margin: 0; font-size: .92rem; }

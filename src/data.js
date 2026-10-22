@@ -35,20 +35,36 @@ export const packages = [
   },
 ]
 
+// PLACEHOLDER unitCost values (₱, clinic's purchase cost). Replace with the clinic's real figures.
 export const inventory = [
-  { sku: 'DLZ-F8', name: 'Dialyzer F8 HPS', category: 'Dialyzers', stock: 42, unit: 'pc', reorderAt: 60, expiry: '2027-08-01' },
-  { sku: 'DLZ-F10', name: 'Dialyzer F10 HPS', category: 'Dialyzers', stock: 118, unit: 'pc', reorderAt: 60, expiry: '2027-11-15' },
-  { sku: 'BLD-AV', name: 'AV Bloodline Set', category: 'Bloodlines', stock: 160, unit: 'set', reorderAt: 80, expiry: '2028-02-01' },
-  { sku: 'FST-16', name: 'AV Fistula Needle 16G', category: 'Needles', stock: 64, unit: 'pair', reorderAt: 100, expiry: '2028-05-30' },
-  { sku: 'FST-15', name: 'AV Fistula Needle 15G', category: 'Needles', stock: 210, unit: 'pair', reorderAt: 100, expiry: '2028-05-30' },
-  { sku: 'ACD-A', name: 'Acid Concentrate (Part A) 5L', category: 'Concentrates', stock: 90, unit: 'gal', reorderAt: 40, expiry: '2027-03-20' },
-  { sku: 'BIC-B', name: 'Bicarbonate Cartridge', category: 'Concentrates', stock: 25, unit: 'pc', reorderAt: 40, expiry: '2027-01-10' },
-  { sku: 'MED-HEP', name: 'Heparin 5,000 IU/mL', category: 'Medicines', stock: 75, unit: 'vial', reorderAt: 30, expiry: '2026-12-31' },
-  { sku: 'MED-EPO', name: 'Epoetin Alfa 4,000 IU', category: 'Medicines', stock: 18, unit: 'pfs', reorderAt: 40, expiry: '2027-04-15' },
-  { sku: 'MED-IRS', name: 'Iron Sucrose 100mg', category: 'Medicines', stock: 52, unit: 'amp', reorderAt: 25, expiry: '2027-06-30' },
-  { sku: 'PD-15', name: 'PD Solution 1.5% 2L', category: 'PD Supplies', stock: 300, unit: 'bag', reorderAt: 200, expiry: '2027-09-01' },
-  { sku: 'KIT-HD', name: 'HD Starter Kit', category: 'Supplies', stock: 140, unit: 'kit', reorderAt: 80, expiry: '2028-01-01' },
+  { sku: 'DLZ-F8', name: 'Dialyzer F8 HPS', category: 'Dialyzers', stock: 42, unit: 'pc', reorderAt: 60, expiry: '2027-08-01', unitCost: 650 },
+  { sku: 'DLZ-F10', name: 'Dialyzer F10 HPS', category: 'Dialyzers', stock: 118, unit: 'pc', reorderAt: 60, expiry: '2027-11-15', unitCost: 750 },
+  { sku: 'BLD-AV', name: 'AV Bloodline Set', category: 'Bloodlines', stock: 160, unit: 'set', reorderAt: 80, expiry: '2028-02-01', unitCost: 320 },
+  { sku: 'FST-16', name: 'AV Fistula Needle 16G', category: 'Needles', stock: 64, unit: 'pair', reorderAt: 100, expiry: '2028-05-30', unitCost: 140 },
+  { sku: 'FST-15', name: 'AV Fistula Needle 15G', category: 'Needles', stock: 210, unit: 'pair', reorderAt: 100, expiry: '2028-05-30', unitCost: 140 },
+  { sku: 'ACD-A', name: 'Acid Concentrate (Part A) 5L', category: 'Concentrates', stock: 90, unit: 'gal', reorderAt: 40, expiry: '2027-03-20', unitCost: 380 },
+  { sku: 'BIC-B', name: 'Bicarbonate Cartridge', category: 'Concentrates', stock: 25, unit: 'pc', reorderAt: 40, expiry: '2027-01-10', unitCost: 450 },
+  { sku: 'MED-HEP', name: 'Heparin 5,000 IU/mL', category: 'Medicines', stock: 75, unit: 'vial', reorderAt: 30, expiry: '2026-12-31', unitCost: 180 },
+  { sku: 'MED-EPO', name: 'Epoetin Alfa 4,000 IU', category: 'Medicines', stock: 48, unit: 'pfs', reorderAt: 60, expiry: '2027-04-15', unitCost: 900 },
+  { sku: 'MED-IRS', name: 'Iron Sucrose 100mg', category: 'Medicines', stock: 52, unit: 'amp', reorderAt: 25, expiry: '2027-06-30', unitCost: 350 },
+  { sku: 'PD-15', name: 'PD Solution 1.5% 2L', category: 'PD Supplies', stock: 300, unit: 'bag', reorderAt: 200, expiry: '2027-09-01', unitCost: 280 },
+  { sku: 'KIT-HD', name: 'HD Starter Kit', category: 'Supplies', stock: 140, unit: 'kit', reorderAt: 80, expiry: '2028-01-01', unitCost: 120 },
 ]
+
+// Supplies every HD session uses, covered by the package. The dialyzer is picked per patient.
+export const SESSION_KIT = ['BLD-AV', 'FST-15', 'ACD-A', 'BIC-B', 'MED-HEP', 'MED-EPO', 'KIT-HD']
+
+// Patient-paid extras. PLACEHOLDER prices and costs, confirm with the clinic.
+// `sku` items also come out of inventory; the rest are services (cost = what the clinic pays out).
+export const ADDONS = [
+  { id: 'epo-extra', name: 'Extra Epoetin 4,000 IU', sku: 'MED-EPO', price: 1500 },
+  { id: 'iron', name: 'Iron Sucrose 100mg', sku: 'MED-IRS', price: 750 },
+  { id: 'labs', name: 'Extra lab panel (CBC, electrolytes)', cost: 400, price: 900 },
+  { id: 'hep', name: 'Hepatitis profile', cost: 600, price: 1200 },
+]
+
+export const SELF_PAY_RATE = 4500 // PLACEHOLDER: session price once PhilHealth's 156 are used up
+export const CLAIM_STATUSES = ['Pending', 'Submitted', 'Paid', 'Denied']
 
 // philhealthUsed = HD sessions claimed this calendar year (null for PD patients).
 const hd = (o) => ({ modality: 'HD', dialyzer: 'F8 HPS', bloodFlow: 300, hours: 4, hbsag: 'Negative', antiHcv: 'Negative', notes: '', labs: [], ...o })

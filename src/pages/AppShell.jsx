@@ -7,11 +7,11 @@ export const MODULES = [
   { path: 'overview', label: 'Overview', phase: 1 },
   { path: 'patients', label: 'Patients', phase: 2 },
   { path: 'schedule', label: 'Scheduler', phase: 3 },
-  { path: 'billing', label: 'POS & Billing', phase: 4, blurb: 'Per-session ledger: what PhilHealth pays, what the patient pays for add-on items, and the clinic\'s margin on each. Official receipts.' },
-  { path: 'philhealth', label: 'PhilHealth Claims', phase: 4, blurb: 'Session counter against the 156/year cap, claim forms, claim status tracking.' },
+  { path: 'billing', label: 'POS & Billing', phase: 4 },
+  { path: 'philhealth', label: 'PhilHealth Claims', phase: 4 },
   { path: 'inventory', label: 'Inventory', phase: 1 },
-  { path: 'crm', label: 'CRM & Reminders', phase: 5, blurb: 'Patient follow-ups and automatic session reminders by email (Resend).' },
-  { path: 'reports', label: 'Reports & Exports', phase: 5, blurb: 'PhilHealth vs. out-of-pocket revenue, profit per patient and per item, claims and stock usage. Export to CSV / Excel.' },
+  { path: 'crm', label: 'CRM & Reminders', phase: 5 },
+  { path: 'reports', label: 'Reports & Exports', phase: 5 },
   { path: 'payroll', label: 'Payroll', phase: 6, blurb: 'Staff records, shifts worked, pay computation with SSS, PhilHealth, Pag-IBIG and withholding tax, payslips.' },
 ]
 

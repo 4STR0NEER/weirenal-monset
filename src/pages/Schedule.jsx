@@ -1,15 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { getSchedule, getPatients, saveBooking, todayISO, useLoad } from '../api.js'
+import { getSchedule, getPatients, saveBooking, todayISO, addDays, useLoad } from '../api.js'
 import { CHAIRS, SHIFTS, ISOLATION_CHAIRS } from '../data.js'
 
 const STATUSES = ['Scheduled', 'On machine', 'Done', 'No-show', 'Cancelled']
-
-const shiftDate = (date, days) => {
-  const d = new Date(date + 'T00:00')
-  d.setDate(d.getDate() + days)
-  return d.toLocaleDateString('en-CA')
-}
 
 export default function Schedule() {
   const [date, setDate] = useState(todayISO)
@@ -50,9 +44,9 @@ export default function Schedule() {
           <p className="muted">{new Date(date + 'T00:00').toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
         </div>
         <div className="row">
-          <button className="btn ghost" onClick={() => setDate(shiftDate(date, -1))} aria-label="Previous day">‹</button>
+          <button className="btn ghost" onClick={() => setDate(addDays(date, -1))} aria-label="Previous day">‹</button>
           <input type="date" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} aria-label="Date" />
-          <button className="btn ghost" onClick={() => setDate(shiftDate(date, 1))} aria-label="Next day">›</button>
+          <button className="btn ghost" onClick={() => setDate(addDays(date, 1))} aria-label="Next day">›</button>
           <button className="btn ghost" onClick={() => setDate(todayISO())}>Today</button>
         </div>
       </header>
