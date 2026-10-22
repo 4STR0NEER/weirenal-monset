@@ -6,9 +6,12 @@ import Login from './pages/Login.jsx'
 import AppShell, { MODULES } from './pages/AppShell.jsx'
 import Overview from './pages/Overview.jsx'
 import Inventory from './pages/Inventory.jsx'
+import Patients from './pages/Patients.jsx'
+import PatientDetail from './pages/PatientDetail.jsx'
+import PatientForm from './pages/PatientForm.jsx'
 import './styles.css'
 
-const built = { overview: <Overview />, inventory: <Inventory /> }
+const built = { overview: <Overview />, inventory: <Inventory />, patients: <Patients /> }
 
 function Soon({ mod }) {
   return (
@@ -31,6 +34,9 @@ createRoot(document.getElementById('root')).render(
           {MODULES.map((m) => (
             <Route key={m.path} path={m.path} element={built[m.path] ?? <Soon mod={m} />} />
           ))}
+          <Route path="patients/new" element={<PatientForm />} />
+          <Route path="patients/:id" element={<PatientDetail />} />
+          <Route path="patients/:id/edit" element={<PatientForm />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

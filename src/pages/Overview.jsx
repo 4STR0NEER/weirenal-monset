@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import { getStats, getTodaySessions, useLoad } from '../api.js'
 import { PHILHEALTH_SESSIONS_PER_YEAR } from '../data.js'
 
@@ -30,7 +31,7 @@ export default function Overview() {
                 {sessions.map((s) => (
                   <tr key={s.id}>
                     <td>{s.time}</td>
-                    <td>{s.patient}</td>
+                    <td><Link className="name-link" to={`/app/patients/${s.patientId}`}>{s.patient}</Link></td>
                     <td>{s.chair}</td>
                     <td className={s.philhealthUsed >= 140 ? 'warn' : ''}>
                       {s.philhealthUsed} / {PHILHEALTH_SESSIONS_PER_YEAR}

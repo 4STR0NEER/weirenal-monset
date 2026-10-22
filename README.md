@@ -21,10 +21,11 @@ and an audit log before any patient goes into the system.
 | Phase | Module | Scope |
 |---|---|---|
 | 1 ✅ | Landing + Auth + Dashboard shell | Public page with PhilHealth packages, staff sign-in, sidebar, overview, inventory lookup |
-| 2 | Patients | Patient database: PhilHealth PIN, prescription, vascular access, labs |
+| 2 ✅ | Patients | Searchable list, profile (PhilHealth sessions left, prescription, access, hepatitis flags, labs), add/edit form |
 | 3 | Scheduler | Chairs × shifts (MWF / TThS), recurring sessions, no-shows |
 | 4 | POS & Billing + PhilHealth Claims | Per-session billing, PhilHealth deduction, 156-session counter, claim status |
 | 5 | CRM & Reminders + Reports | Follow-ups, automated emails via Resend (server-side only), reports |
+| 6 | Patient portal | Patients sign in online to view their own records: schedule, labs, PhilHealth sessions left, receipts. Needs the real backend first; the server must limit each patient to their own record |
 
 Inventory grows from lookup to stock-in/stock-out once billing consumes supplies (phase 4).
 

@@ -1,10 +1,11 @@
 import { NavLink, Navigate, Outlet, useNavigate } from 'react-router'
 import { currentUser, logout } from '../api.js'
 
-// Sidebar + routes come from this list. Building a module = add its page in main.jsx.
+// Sidebar + routes come from this list. Building a module = add its page in main.jsx
+// and drop its blurb (only unbuilt modules have one).
 export const MODULES = [
   { path: 'overview', label: 'Overview', phase: 1 },
-  { path: 'patients', label: 'Patients', phase: 2, blurb: 'Patient database: demographics, PhilHealth PIN, dialysis prescription, vascular access, lab history.' },
+  { path: 'patients', label: 'Patients', phase: 2 },
   { path: 'schedule', label: 'Scheduler', phase: 3, blurb: 'Chair and shift booking (MWF / TThS), recurring sessions, no-show tracking.' },
   { path: 'billing', label: 'POS & Billing', phase: 4, blurb: 'Per-session billing, PhilHealth deduction, out-of-pocket items, official receipts.' },
   { path: 'philhealth', label: 'PhilHealth Claims', phase: 4, blurb: 'Session counter against the 156/year cap, claim forms, claim status tracking.' },
@@ -26,7 +27,7 @@ export default function AppShell() {
           {MODULES.map((m) => (
             <NavLink key={m.path} to={m.path}>
               {m.label}
-              {m.phase > 1 && <span className="soon">P{m.phase}</span>}
+              {m.blurb && <span className="soon">P{m.phase}</span>}
             </NavLink>
           ))}
         </nav>
