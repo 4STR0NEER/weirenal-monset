@@ -27,6 +27,9 @@ and an audit log before any patient goes into the system.
 | 1 ✅ | Landing + Auth + Dashboard shell | Public page with PhilHealth packages, staff sign-in, sidebar, overview, inventory lookup |
 | 2 ✅ | Patients | Searchable list, profile (PhilHealth sessions left, prescription, access, hepatitis flags, labs), add/edit form |
 | 3 ✅ | Scheduler | Daily chair × shift grid, recurring MWF / TThS slots, book / move / make-up sessions, status (done, no-show, cancelled), isolation-chair and double-booking checks |
+| 3b ✅ | Treatment floor + sheets | 12-chair board per shift (machine model, UF progress, reading due, out-of-range alerts). Per-session sheet: before (weight, BP, access, heparin, UF goal), machine readings during, after (weight, complications). Finishing a sheet marks the session Done for billing. Printable |
+| 3b ✅ | Machine readings (semi-manual) | Nurse copies the Fresenius screen into a form prefilled from the last reading, optional photo of the screen. Stored as `{ source: 'manual' }`; automatic capture (scoped at the site visit) writes the same shape |
+| 3b ✅ | Water room | Check before every shift (chlorine, RO conductivity, hardness, feed pressure) with live pass/fail; failed checks and retests all kept; scheduled cultures, endotoxin, disinfection, filters with due dates; CSV export for inspections |
 | 4 ✅ | POS & Billing + PhilHealth Claims | Per-session ledger split by payer: PhilHealth package vs. patient-paid add-on items, each line with cost and price so the clinic's margin is recorded. Receipts, 156-session counter, claim status. Billing consumes inventory (stock-out) |
 | 5 ✅ | Reports, Exports, CRM | Analytics: PhilHealth vs. out-of-pocket revenue, profit per patient / item / month, claims aging, stock usage. Export any table to CSV (opens in Excel). Follow-ups + automated emails via Resend (server-side only) |
 | — | Roles | Nurse, front desk, admin, doctor: each sees only their modules (doctors: patient profiles and labs; admin: everything). Arrives with real auth |
@@ -48,5 +51,8 @@ Verify against the current circulars at philhealth.gov.ph before launch.
 ## Placeholders to replace with the clinic's real numbers
 
 - `inventory[].unitCost`, `ADDONS` prices/costs and `SELF_PAY_RATE` in `src/data.js`
+- `VITAL_LIMITS`, `MAX_GAIN_PCT`, `READING_EVERY_MIN`: medical director signs off
+- `WATER_LIMITS`, `WATER_TASKS`: confirm with the clinic's water system and DOH requirements
+- `MACHINES`: which chairs have the two 5008S units
 - Profit is gross margin on consumables only; staff and overhead arrive with payroll (phase 6)
 - Peritoneal dialysis (Z Benefit) billing is not in the POS yet; HD sessions only

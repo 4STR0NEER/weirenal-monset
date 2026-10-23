@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import {
   packages, inventory, patients, bookings, SHIFTS, DAYS, ISOLATION_CHAIRS, CHAIRS,
   SESSION_KIT, ADDONS, SELF_PAY_RATE, CLAIM_STATUSES, PHILHEALTH_SESSIONS_PER_YEAR,
+  MACHINES, VITAL_LIMITS, MAX_GAIN_PCT, READING_EVERY_MIN, ACCESS_CHECKS, COMPLICATIONS, WATER_LIMITS, WATER_TASKS,
 } from './data.js'
 
 const mock = (value) => new Promise((r) => setTimeout(() => r(structuredClone(value)), 150))
@@ -117,13 +118,19 @@ export function getInventory({ q = '', category = '' } = {}) {
 }
 
 export function getStats() {
-  const today = daySessions(todayISO()).filter((s) => !freesChair(s))
+  const date = todayISO()
+  const today = daySessions(date).filter((s) => !freesChair(s))
   return mock({
     sessionsToday: today.length,
     chairsInUse: today.filter((s) => s.status === 'On machine').length,
     chairs: CHAIRS,
     lowStock: inventory.filter((i) => i.stock <= i.reorderAt).length,
     nearCap: today.filter((s) => s.philhealthUsed >= 140).length,
+    readingsDue: today.filter((s) => sheetSummary(sheetOf(date, s.patientId), s).due).length,
+    // shifts starting within the hour (or already running) without a passing water check
+    waterDue: weekday(date) === 0 ? [] : Object.entries(SHIFTS)
+      .filter(([shift, time]) => new Date(`${date}T${time}`) - Date.now() < 36e5 && !passed(latestCheck(date, shift)))
+      .map(([shift]) => shift),
   })
 }
 
@@ -317,11 +324,226 @@ export const getOutbox = () => mock(outbox)
   }
 })()
 
+// ---- Shared checks ----
+// Keys of `values` outside their { min, max } in `limits`.
+export const breaches = (values, limits) => Object.keys(limits).filter((k) => {
+  const v = values?.[k], { min, max } = limits[k]
+  return v != null && ((min != null && v < min) || (max != null && v > max))
+})
+const round1 = (n) => Math.round(n * 10) / 10
+const nurse = () => currentUser()?.name ?? 'staff'
+
+// Numbers typed by staff: [low, high, label]. Anything outside is a typo, not a reading.
+const SANE = {
+  weight: [20, 250, 'weight'], sys: [40, 280, 'systolic BP'], dia: [20, 180, 'diastolic BP'], pulse: [20, 220, 'pulse'],
+  temp: [33, 43, 'temperature'], qb: [0, 600, 'blood flow'], qd: [0, 1000, 'dialysate flow'], vp: [-100, 500, 'venous pressure'],
+  ap: [-500, 100, 'arterial pressure'], tmp: [-100, 600, 'TMP'], uf: [0, 10, 'UF removed'], cond: [10, 18, 'conductivity'],
+  ufGoal: [0, 10, 'UF goal'], hours: [1, 8, 'duration'], heparinBolus: [0, 10000, 'heparin bolus'], heparinRate: [0, 5000, 'heparin per hour'],
+  chlorine: [0, 5, 'chlorine'], conductivity: [0, 2000, 'conductivity'], hardness: [0, 50, 'hardness'], feedPressure: [0, 150, 'feed pressure'],
+  result: [0, 1e6, 'the result'],
+}
+function numbers(data, required, optional = []) {
+  const out = {}
+  for (const k of [...required, ...optional]) {
+    const raw = data[k], [lo, hi, label] = SANE[k]
+    if (raw === '' || raw == null) {
+      if (required.includes(k)) return [null, `Fill in ${label}.`]
+      continue
+    }
+    const n = Number(raw)
+    if (!Number.isFinite(n) || n < lo || n > hi) return [null, `Check ${label}: ${raw} looks wrong.`]
+    out[k] = n
+  }
+  return [out, null]
+}
+
+// ---- Treatment sheets ----
+// One sheet per session: checks before, machine readings during, checks after.
+// ponytail: readings are typed from the machine screen (source 'manual'). Automatic capture from
+// the Fresenius machines (scoped at the site visit) writes readings in this same shape.
+const sheets = []
+const sheetOf = (date, patientId) => sheets.find((t) => t.date === date && t.patientId === patientId)
+const minutesSince = (iso) => (Date.now() - new Date(iso)) / 6e4
+
+function sheetSummary(t, s) {
+  const p = patients.find((p) => p.id === s.patientId)
+  const last = t?.readings.at(-1)
+  const gain = t?.pre ? round1(t.pre.weight - p.dryWeight) : null
+  const keys = [t?.pre, ...(t?.readings ?? []), t?.post].flatMap((r) => breaches(r, VITAL_LIMITS))
+  const alerts = [...new Set(keys)].map((k) => VITAL_LIMITS[k].label)
+  if (gain > (p.dryWeight * MAX_GAIN_PCT) / 100) alerts.unshift('Weight gain')
+  const live = s.status === 'On machine'
+  return {
+    started: !!t?.pre, finished: !!t?.post, gain, alerts,
+    ufGoal: t?.pre?.ufGoal ?? null, ufRemoved: t?.post?.uf ?? last?.uf ?? 0,
+    readings: t?.readings.length ?? 0, lastAt: last?.at ?? t?.pre?.at ?? null,
+    due: live && !!t?.pre && !t.post && minutesSince(last?.at ?? t.pre.at) > READING_EVERY_MIN,
+    preMissing: live && !t?.pre,
+    postMissing: s.status === 'Done' && !!t?.pre && !t.post,
+  }
+}
+
+export const getFloor = (date) => mock(daySessions(date).map((s) => ({ ...s, machine: MACHINES[s.chair], ...sheetSummary(sheetOf(date, s.patientId), s) })))
+
+function sessionFor(date, patientId) {
+  const s = daySessions(date).find((s) => s.patientId === Number(patientId))
+  return s && !freesChair(s) ? s : null
+}
+
+export function getTreatment(date, patientId) {
+  const s = sessionFor(date, patientId)
+  if (!s) return fail('No session for this patient on that date.')
+  const sheet = sheetOf(date, s.patientId) ?? null
+  return mock({ patient: patients.find((p) => p.id === s.patientId), session: s, machine: MACHINES[s.chair], sheet, summary: sheetSummary(sheet, s) })
+}
+
+// Starting or finishing a sheet today moves the scheduler status too, so billing sees finished sessions.
+const setStatus = (date, s, status) => (date === todayISO() ? saveBooking({ date, patientId: s.patientId, chair: s.chair, shift: s.shift, status }) : mock(null))
+
+export function startTreatment(date, patientId, data) {
+  const s = sessionFor(date, patientId)
+  if (!s) return fail('No session for this patient on that date.')
+  if (date > todayISO()) return fail('Treatment starts on the session day.')
+  if (sheetOf(date, s.patientId)) return fail('This treatment has already started.')
+  if (!ACCESS_CHECKS.includes(data.access)) return fail('Pick the access check result.')
+  const [n, err] = numbers(data, ['weight', 'sys', 'dia', 'pulse', 'temp', 'qb', 'hours'], ['heparinBolus', 'heparinRate', 'ufGoal'])
+  if (err) return fail(err)
+  const p = patients.find((p) => p.id === s.patientId)
+  const pre = { ...n, ufGoal: n.ufGoal ?? Math.max(0, round1(n.weight - p.dryWeight)), access: data.access,
+    dialyzer: String(data.dialyzer || p.dialyzer).slice(0, 40), at: new Date().toISOString(), by: nurse() }
+  sheets.push({ date, patientId: s.patientId, pre, readings: [], post: null })
+  return setStatus(date, s, 'On machine')
+}
+
+export function addReading(date, patientId, data) {
+  const t = sheetOf(date, Number(patientId))
+  if (!t?.pre) return fail('Do the before-treatment check first.')
+  if (t.post) return fail('This treatment is already finished.')
+  const [n, err] = numbers(data, ['sys', 'dia', 'pulse', 'qb', 'uf'], ['qd', 'vp', 'ap', 'tmp', 'cond'])
+  if (err) return fail(err)
+  if (n.uf < (t.readings.at(-1)?.uf ?? 0)) return fail('UF removed can’t go down. Check the UF volume on the machine.')
+  // ponytail: photo is a browser blob URL, gone on refresh. Real version uploads it with the reading.
+  const photo = typeof data.photo === 'string' && data.photo.startsWith('blob:') ? data.photo : null
+  const r = { ...n, at: new Date().toISOString(), by: nurse(), source: 'manual', photo, note: String(data.note ?? '').slice(0, 300) }
+  t.readings.push(r)
+  return mock(r)
+}
+
+export function finishTreatment(date, patientId, data) {
+  const s = sessionFor(date, patientId)
+  const t = s && sheetOf(date, s.patientId)
+  if (!t?.pre) return fail('Start the treatment first.')
+  if (t.post) return fail('This treatment is already finished.')
+  const [n, err] = numbers(data, ['weight', 'sys', 'dia', 'pulse', 'uf'])
+  if (err) return fail(err)
+  const complications = [data.complications ?? []].flat().filter((c) => COMPLICATIONS.includes(c))
+  t.post = { ...n, complications, notes: String(data.notes ?? '').slice(0, 1000), at: new Date().toISOString(), by: nurse() }
+  return setStatus(date, s, 'Done')
+}
+
+// ---- Water room ----
+// Every check is kept, failed ones and retests included: the log is the inspection trail.
+const waterChecks = []
+const waterTaskLog = []
+const byTime = (a, b) => a.date.localeCompare(b.date) || a.at.localeCompare(b.at)
+const latestCheck = (date, shift) => waterChecks.filter((c) => c.date === date && c.shift === shift).sort(byTime).at(-1)
+const passed = (c) => !!c && breaches(c, WATER_LIMITS).length === 0
+const withFails = (c) => ({ ...c, fails: breaches(c, WATER_LIMITS).map((k) => WATER_LIMITS[k].label) })
+
+function waterTask(t, today) {
+  const last = waterTaskLog.filter((l) => l.taskId === t.id).sort((a, b) => a.date.localeCompare(b.date)).at(-1) ?? null
+  const due = last ? addDays(last.date, t.every) : today
+  return { ...t, last, due, daysLeft: daysBetween(today, due), high: t.action != null && last?.result > t.action }
+}
+
+export function getWaterRoom(date) {
+  return mock({
+    closed: weekday(date) === 0,
+    shifts: Object.entries(SHIFTS).map(([shift, time]) => {
+      const c = latestCheck(date, shift)
+      return { shift, time, check: c ? withFails(c) : null, tries: waterChecks.filter((x) => x.date === date && x.shift === shift).length }
+    }),
+    tasks: WATER_TASKS.map((t) => waterTask(t, todayISO())),
+    history: waterChecks.filter((c) => c.date <= date && daysBetween(c.date, date) < 14).sort(byTime).reverse().map(withFails),
+  })
+}
+
+export function saveWaterCheck({ date, shift, notes = '', ...values }) {
+  if (!SHIFTS[shift]) return fail('Pick a shift.')
+  if (!date || date > todayISO()) return fail('Can’t log a check for a future date.')
+  const [n, err] = numbers(values, Object.keys(WATER_LIMITS))
+  if (err) return fail(err)
+  const c = { date, shift, ...n, notes: String(notes ?? '').slice(0, 300), at: new Date().toISOString(), by: nurse() }
+  waterChecks.push(c)
+  return mock(withFails(c))
+}
+
+export function completeWaterTask(taskId, { date, result }) {
+  const t = WATER_TASKS.find((t) => t.id === taskId)
+  if (!t) return fail('Unknown task.')
+  if (!date || date > todayISO()) return fail('Pick the date it was done.')
+  const [n, err] = t.unit ? numbers({ result }, ['result']) : [{}, null]
+  if (err) return fail(err)
+  waterTaskLog.push({ taskId, date, result: n.result ?? null, by: nurse() })
+  return mock(waterTask(t, todayISO()))
+}
+
+// Demo history: a week of treatment sheets and a month of water checks. Not part of the real API.
+;(function seedCare() {
+  const rand = (n) => { const x = Math.sin(n) * 1e4; return x - Math.floor(x) }
+  const today = todayISO(), now = Date.now(), iso = (ms) => new Date(ms).toISOString()
+  for (let d = addDays(today, -7); d <= today; d = addDays(d, 1)) {
+    for (const s of daySessions(d).filter((s) => s.status === 'Done' || s.status === 'On machine')) {
+      const p = patients.find((p) => p.id === s.patientId)
+      if (d === today && (p.id === 4 || p.id === 12)) continue // today: a pre-check still to do
+      const seed = p.id * 97 + Number(d.replaceAll('-', ''))
+      const start = new Date(`${d}T${s.time}`).getTime() + 10 * 6e4
+      const gain = p.id === 7 ? 3.4 : round1(1.2 + rand(seed) * 1.6) // Joel: above the 4% limit
+      const sys = Math.round(128 + rand(seed + 1) * 26), dia = Math.round(76 + rand(seed + 2) * 12)
+      const pre = { weight: round1(p.dryWeight + gain), sys, dia, pulse: Math.round(72 + rand(seed + 3) * 14), temp: round1(36.4 + rand(seed + 4) * 0.5),
+        qb: p.bloodFlow, hours: p.hours, ufGoal: gain, heparinBolus: 2000, heparinRate: 1000, dialyzer: p.dialyzer,
+        access: p.access.startsWith('Tunneled') ? 'Catheter site clean' : 'Good thrill and bruit', at: iso(start), by: 'Nurse Joy' }
+      const t = { date: d, patientId: p.id, pre, readings: [], post: null }
+      const hours = d === today && p.id === 3 ? 1 : p.hours // today: Teodoro's reading is overdue
+      for (let h = 1; h <= hours && start + h * 36e5 <= now; h++) {
+        const dip = p.id === 2 && h === 3 // Liza: low BP mid-treatment
+        t.readings.push({ sys: sys - h * 5 - (dip ? 42 : 0), dia: dia - h * 2 - (dip ? 16 : 0), pulse: pre.pulse + h * 2, qb: p.bloodFlow, qd: 500,
+          vp: Math.round(130 + rand(seed + h * 7) * 50), ap: -Math.round(150 + rand(seed + h * 11) * 50), tmp: Math.round(110 + rand(seed + h * 13) * 70),
+          uf: round1((gain * h) / p.hours), cond: 14, at: iso(start + h * 36e5), by: 'Nurse Joy', source: 'manual', photo: null,
+          note: dip ? 'UF paused, 100 mL saline given. BP back to 112/70 after 15 min.' : '' })
+      }
+      if (s.status === 'Done' && t.readings.length === p.hours)
+        t.post = { weight: round1(p.dryWeight + 0.1), sys: sys - 12, dia: dia - 4, pulse: pre.pulse + 4, uf: round1(gain - 0.1),
+          complications: p.id === 2 ? ['Hypotension', 'Cramps'] : [], notes: '', at: iso(start + p.hours * 36e5 + 5 * 6e4), by: 'Nurse Joy' }
+      sheets.push(t)
+    }
+  }
+
+  let incident = addDays(today, -9)
+  if (weekday(incident) === 0) incident = addDays(incident, -1)
+  for (let d = addDays(today, -30); d <= today; d = addDays(d, 1)) {
+    if (weekday(d) === 0) continue
+    for (const [i, [shift, time]] of Object.entries(SHIFTS).entries()) {
+      const at = new Date(`${d}T${time}`).getTime() - 40 * 6e4
+      if (at > now) continue
+      const seed = Number(d.replaceAll('-', '')) * 3 + i
+      const c = { date: d, shift, chlorine: Math.round((0.02 + rand(seed) * 0.05) * 100) / 100, conductivity: round1(6 + rand(seed + 1) * 8),
+        hardness: round1(rand(seed + 2) * 0.4), feedPressure: Math.round(40 + rand(seed + 3) * 12), notes: '', at: iso(at), by: 'Tech Ramil' }
+      if (d === incident && shift === 'AM') {
+        waterChecks.push({ ...c, chlorine: 0.14, notes: 'Above limit. Treatments held.' })
+        waterChecks.push({ ...c, chlorine: 0.04, at: iso(at + 35 * 6e4), notes: 'Replaced carbon cartridge; retest passed.' })
+      } else waterChecks.push(c)
+    }
+  }
+  for (const [taskId, ago, result = null] of [['culture', 26, 12], ['endotoxin', 26, 0.03], ['disinfect', 33], ['sediment', 12], ['carbon', 95], ['chemical', 200]])
+    waterTaskLog.push({ taskId, date: addDays(today, -ago), result, by: 'Tech Ramil' })
+})()
+
 // ponytail: mock auth, any non-empty email/password passes and the user lives in
 // sessionStorage. Real version: POST /auth/login, httpOnly session cookie, roles from server.
-export async function login(email, password) {
+export async function login(email, password, { name, role = 'staff' } = {}) {
   if (!email.trim() || !password) throw new Error('Enter your email and password.')
-  const user = { email, name: email.split('@')[0], role: 'staff' }
+  const user = { email, name: name ?? email.split('@')[0], role }
   sessionStorage.setItem('user', JSON.stringify(user))
   return mock(user)
 }
@@ -344,6 +566,26 @@ export function useLoad(fn, deps = []) {
     return () => { live = false }
   }, deps) // eslint-disable-line react-hooks/exhaustive-deps
   return state
+}
+
+// Form submit through an api call: shows the error, runs onDone on success.
+export function useSubmit(call, onDone) {
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+  async function onSubmit(e) {
+    e.preventDefault()
+    setBusy(true)
+    setError('')
+    try {
+      await call(e.currentTarget)
+      setBusy(false)
+      onDone()
+    } catch (err) {
+      setError(err.message)
+      setBusy(false)
+    }
+  }
+  return { onSubmit, error, busy }
 }
 
 export const peso = (n) => '₱' + n.toLocaleString('en-PH')

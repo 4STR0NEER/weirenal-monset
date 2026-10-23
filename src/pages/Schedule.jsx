@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { getSchedule, getPatients, saveBooking, todayISO, addDays, useLoad } from '../api.js'
-import { CHAIRS, SHIFTS, ISOLATION_CHAIRS } from '../data.js'
+import { CHAIRS, SHIFTS, ISOLATION_CHAIRS, MACHINES } from '../data.js'
 
 const STATUSES = ['Scheduled', 'On machine', 'Done', 'No-show', 'Cancelled']
 
@@ -95,7 +95,7 @@ export default function Schedule() {
                 <tbody>
                   {Array.from({ length: CHAIRS }, (_, i) => i + 1).map((chair) => (
                     <tr key={chair}>
-                      <th scope="row">{chair}{ISOLATION_CHAIRS.includes(chair) && <span className="pill flag">Isolation</span>}</th>
+                      <th scope="row">{chair} <span className="fine">{MACHINES[chair]}</span>{ISOLATION_CHAIRS.includes(chair) && <span className="pill flag">Isolation</span>}</th>
                       {Object.keys(SHIFTS).map((shift) => {
                         const here = sessions.filter((s) => s.chair === chair && s.shift === shift)
                         const free = here.every((s) => s.status === 'Cancelled' || s.status === 'No-show')

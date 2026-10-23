@@ -101,7 +101,7 @@ export const patients = [
   hd({ id: 11, name: 'Josefina Cruz', birthDate: '1963-01-11', sex: 'F', phone: '0927 555 1101', email: 'josie.cruz@example.com', emergencyContact: 'Dan Cruz (son) 0927 555 1102',
     philhealthPin: '09-778899001-2', membership: 'Member', diagnosis: 'CKD 5 — hypertensive nephrosclerosis', schedule: 'TThS', shift: 'Mid', chair: 3, access: 'AV graft, left upper arm', dryWeight: 57, philhealthUsed: 75 }),
   hd({ id: 12, name: 'Eduardo Reyes', birthDate: '1977-10-03', sex: 'M', phone: '0928 555 1201', email: 'ed.reyes@example.com', emergencyContact: 'Mila Reyes (wife) 0928 555 1202',
-    philhealthPin: '14-112200334-5', membership: 'Member', diagnosis: 'CKD 5 — chronic glomerulonephritis', schedule: 'TThS', shift: 'PM', chair: 5, access: 'AV fistula, right forearm', dryWeight: 72, philhealthUsed: 44 }),
+    philhealthPin: '14-112200334-5', membership: 'Member', diagnosis: 'CKD 5 — chronic glomerulonephritis', schedule: 'TThS', shift: 'PM', chair: 11, access: 'AV fistula, right forearm', dryWeight: 72, philhealthUsed: 44 }),
 ]
 
 // Daily schedule = each HD patient's recurring slot (schedule + shift + chair),
@@ -117,3 +117,40 @@ export const DAYS = { MWF: [1, 3, 5], TThS: [2, 4, 6] } // Date#getDay(); Sunday
 export const ISOLATION_CHAIRS = [4] // HBsAg-positive patients only
 export const CHAIRS = 12
 export const PHILHEALTH_SESSIONS_PER_YEAR = 156
+
+// Ten Fresenius 4008S and two premium 5008S (discovery form Q25).
+// PLACEHOLDER: which chairs have the 5008S, confirm at the site visit.
+export const MACHINES = Object.fromEntries(Array.from({ length: CHAIRS }, (_, i) => [i + 1, i < 10 ? '4008S' : '5008S']))
+
+// Treatment sheet alert limits. PLACEHOLDER: every number needs the medical director's sign-off.
+export const VITAL_LIMITS = {
+  sys: { label: 'Systolic BP', min: 90, max: 180 },
+  dia: { label: 'Diastolic BP', max: 100 },
+  pulse: { label: 'Pulse', min: 50, max: 120 },
+  temp: { label: 'Temperature', max: 37.8 },
+  vp: { label: 'Venous pressure', max: 250 },
+  ap: { label: 'Arterial pressure', min: -250 },
+  tmp: { label: 'TMP', max: 300 },
+  cond: { label: 'Conductivity', min: 13.5, max: 14.5 },
+}
+export const MAX_GAIN_PCT = 4 // weight above dry weight, % of dry weight
+export const READING_EVERY_MIN = 60
+export const ACCESS_CHECKS = ['Good thrill and bruit', 'Weak thrill or bruit', 'Signs of infection', 'Catheter site clean', 'Catheter site red or draining']
+export const COMPLICATIONS = ['Hypotension', 'Cramps', 'Nausea or vomiting', 'Headache', 'Chest pain', 'Fever or chills', 'Access bleeding', 'Clotted lines']
+
+// Water room. PLACEHOLDER limits, typical for dialysis water (ISO 23500 / AAMI);
+// confirm against the clinic's water system and DOH requirements.
+export const WATER_LIMITS = {
+  chlorine: { label: 'Total chlorine', unit: 'mg/L', max: 0.1 },
+  conductivity: { label: 'RO product conductivity', unit: 'µS/cm', max: 20 },
+  hardness: { label: 'Softener hardness', unit: 'gpg', max: 1 },
+  feedPressure: { label: 'Feed pressure', unit: 'psi', min: 30, max: 60 },
+}
+export const WATER_TASKS = [
+  { id: 'culture', name: 'Bacterial culture', every: 30, unit: 'CFU/mL', action: 50, max: 100 },
+  { id: 'endotoxin', name: 'Endotoxin test', every: 30, unit: 'EU/mL', action: 0.125, max: 0.25 },
+  { id: 'disinfect', name: 'RO and loop disinfection', every: 30 },
+  { id: 'sediment', name: 'Sediment filter change', every: 30 },
+  { id: 'carbon', name: 'Carbon tank replacement', every: 180 },
+  { id: 'chemical', name: 'Full chemical analysis', every: 365 },
+]

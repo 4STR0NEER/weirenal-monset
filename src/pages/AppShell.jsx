@@ -1,6 +1,6 @@
 import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router'
 import {
-  LayoutDashboard, Users, CalendarDays, ReceiptText, FileCheck2, Package, Mail, ChartColumn, Wallet, LogOut,
+  LayoutDashboard, Users, CalendarDays, HeartPulse, Droplets, ReceiptText, FileCheck2, Package, Mail, ChartColumn, Wallet, LogOut,
 } from 'lucide-react'
 import { currentUser, logout } from '../api.js'
 import Logo from '../components/Logo.jsx'
@@ -11,9 +11,11 @@ export const MODULES = [
   { path: 'overview', label: 'Overview', phase: 1, group: 'Care', icon: LayoutDashboard },
   { path: 'patients', label: 'Patients', phase: 2, group: 'Care', icon: Users },
   { path: 'schedule', label: 'Scheduler', phase: 3, group: 'Care', icon: CalendarDays },
+  { path: 'treatments', label: 'Treatment floor', phase: 3, group: 'Care', icon: HeartPulse },
   { path: 'billing', label: 'POS & Billing', phase: 4, group: 'Money', icon: ReceiptText },
   { path: 'philhealth', label: 'PhilHealth Claims', phase: 4, group: 'Money', icon: FileCheck2 },
   { path: 'reports', label: 'Reports & Exports', phase: 5, group: 'Money', icon: ChartColumn },
+  { path: 'water', label: 'Water room', phase: 3, group: 'Operations', icon: Droplets },
   { path: 'inventory', label: 'Inventory', phase: 1, group: 'Operations', icon: Package },
   { path: 'crm', label: 'CRM & Reminders', phase: 5, group: 'Operations', icon: Mail },
   { path: 'payroll', label: 'Payroll', phase: 6, group: 'Operations', icon: Wallet, blurb: 'Staff records, shifts worked, pay computation with SSS, PhilHealth, Pag-IBIG and withholding tax, payslips.' },

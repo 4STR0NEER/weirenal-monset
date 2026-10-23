@@ -14,11 +14,15 @@ import Billing from './pages/Billing.jsx'
 import Claims from './pages/Claims.jsx'
 import Reports from './pages/Reports.jsx'
 import Crm from './pages/Crm.jsx'
+import Treatments from './pages/Treatments.jsx'
+import TreatmentSheet from './pages/TreatmentSheet.jsx'
+import WaterRoom from './pages/WaterRoom.jsx'
 import './styles.css'
 
 const built = {
   overview: <Overview />, inventory: <Inventory />, patients: <Patients />, schedule: <Schedule />,
   billing: <Billing />, philhealth: <Claims />, reports: <Reports />, crm: <Crm />,
+  treatments: <Treatments />, water: <WaterRoom />,
 }
 
 function Soon({ mod }) {
@@ -45,6 +49,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="patients/new" element={<PatientForm />} />
           <Route path="patients/:id" element={<PatientDetail />} />
           <Route path="patients/:id/edit" element={<PatientForm />} />
+          <Route path="treatments/:date/:patientId" element={<TreatmentSheet />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

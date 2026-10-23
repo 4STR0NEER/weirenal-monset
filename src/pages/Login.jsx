@@ -1,7 +1,16 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
+import { ShieldCheck, HeartPulse, ReceiptText, Stethoscope } from 'lucide-react'
 import { login } from '../api.js'
 import Logo from '../components/Logo.jsx'
+
+// Demo only: one click per role, landing on the screen that role lives in.
+const DEMO = [
+  { role: 'admin', label: 'Admin', name: 'Admin', to: '/app/overview', icon: ShieldCheck },
+  { role: 'nurse', label: 'Nurse', name: 'Nurse Joy', to: '/app/treatments', icon: HeartPulse },
+  { role: 'frontdesk', label: 'Front desk', name: 'Mia', to: '/app/billing', icon: ReceiptText },
+  { role: 'doctor', label: 'Doctor', name: 'Dr. Reyes', to: '/app/patients', icon: Stethoscope },
+]
 
 export default function Login() {
   const navigate = useNavigate()
@@ -34,7 +43,15 @@ export default function Login() {
         <label>Password<input name="password" type="password" autoComplete="current-password" required /></label>
         {error && <p className="error" role="alert">{error}</p>}
         <button className="btn" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
-        <p className="fine">Demo mode: any email and password works.</p>
+        <div className="demo">
+          <span className="fine">Or try a demo account</span>
+          {DEMO.map(({ role, label, name, to, icon: Icon }) => (
+            <button key={role} type="button" className="btn ghost" disabled={busy}
+              onClick={async () => { setBusy(true); await login(`${role}@demo.weirenal`, 'demo', { name, role }); navigate(to) }}>
+              <Icon aria-hidden /> {label}
+            </button>
+          ))}
+        </div>
       </form>
     </main>
   )

@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
-import { PackageOpen, ShieldAlert, FileClock, CircleCheck } from 'lucide-react'
-import { getStats, getTodaySessions, currentUser, useLoad } from '../api.js'
+import { PackageOpen, ShieldAlert, FileClock, CircleCheck, Droplets, Clock } from 'lucide-react'
+import { getStats, getTodaySessions, currentUser, useLoad, todayISO } from '../api.js'
 import { PHILHEALTH_SESSIONS_PER_YEAR } from '../data.js'
 import { AnimatedNumber } from '../components/vengeance/animated-number.jsx'
 
@@ -42,7 +42,7 @@ export default function Overview() {
                       <td><Link className="name-link" to={`/app/patients/${s.patientId}`}>{s.patient}</Link></td>
                       <td>{s.chair}</td>
                       <td className={s.philhealthUsed >= 140 ? 'warn' : ''}>{s.philhealthUsed} / {PHILHEALTH_SESSIONS_PER_YEAR}</td>
-                      <td><span className={'pill ' + s.status.replace(' ', '-').toLowerCase()}>{s.status}</span></td>
+                      <td><Link to={`/app/treatments/${todayISO()}/${s.patientId}`} className={'pill ' + s.status.replace(' ', '-').toLowerCase()}>{s.status}</Link></td>
                     </tr>
                   ))}
                 </tbody>
@@ -54,10 +54,12 @@ export default function Overview() {
         <section className="card">
           <h2>Needs attention</h2>
           <div className="attention">
+            {stats?.waterDue.length > 0 && <Item to="/app/water" icon={Droplets} title={`Water check due: ${stats.waterDue.join(', ')} shift`} sub="Log it before patients go on" />}
+            {stats?.readingsDue > 0 && <Item to="/app/treatments" icon={Clock} title={`${stats.readingsDue} machine readings due`} sub="Over an hour since the last one" />}
             {stats?.nearCap > 0 && <Item to="/app/crm" icon={ShieldAlert} title={`${stats.nearCap} near the 156-session cap`} sub="Talk to them about the rest of the year" />}
             {stats?.lowStock > 0 && <Item to="/app/inventory" icon={PackageOpen} title={`${stats.lowStock} items to reorder`} sub="At or below reorder level" />}
             <Item to="/app/philhealth" icon={FileClock} title="Pending PhilHealth claims" sub="Submit this week’s sessions" />
-            {stats && !stats.nearCap && !stats.lowStock && <Item to="/app/schedule" icon={CircleCheck} calm title="All clear" sub="Nothing urgent today" />}
+            {stats && !stats.nearCap && !stats.lowStock && !stats.waterDue.length && !stats.readingsDue && <Item to="/app/schedule" icon={CircleCheck} calm title="All clear" sub="Nothing urgent today" />}
           </div>
         </section>
       </div>
@@ -65,7 +67,7 @@ export default function Overview() {
   )
 }
 
-function Stat({ label, value, warn }) {
+export function Stat({ label, value, warn }) {
   return (
     <div className={'stat' + (warn ? ' warn' : '')}>
       <span className="muted">{label}</span>
