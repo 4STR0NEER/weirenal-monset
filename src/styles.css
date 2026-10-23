@@ -365,6 +365,16 @@
   .shift-check { display: grid; gap: 14px; align-content: start; }
   .shift-check header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .shift-check .btn { width: fit-content; }
+  /* Duty roster */
+  .duty { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .duty li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 8px 8px 12px; border-radius: var(--r-md); background: var(--surface-2); }
+  .duty li > span { display: grid; min-width: 0; }
+  .duty small { color: var(--ink-2); font-size: 0.8rem; }
+  .duty li.absent { opacity: 0.6; }
+  .duty li.absent strong { text-decoration: line-through; }
+  .duty .btn.icon { width: 34px; height: 34px; flex: none; }
+  .slip-head { font-size: 0.9rem; font-weight: 600; color: var(--ink-2); }
+
   .task-form { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
 
   @media (max-width: 980px) {

@@ -34,7 +34,7 @@ and an audit log before any patient goes into the system.
 | 5 ✅ | Reports, Exports, CRM | Analytics: PhilHealth vs. out-of-pocket revenue, profit per patient / item / month, claims aging, stock usage. Export any table to CSV (opens in Excel). Follow-ups + automated emails via Resend (server-side only) |
 | — | Roles | Nurse, front desk, admin, doctor: each sees only their modules (doctors: patient profiles and labs; admin: everything). Arrives with real auth |
 | — | Lab inbox | Labs email results; Resend inbound → server parses the email/PDF → matches patient by PhilHealth PIN + name + birth date → staff confirm in a review queue → appended to the patient's labs. Never auto-written without review |
-| 6 | Payroll | Staff records, shifts worked (from the scheduler), pay with SSS / PhilHealth / Pag-IBIG / withholding tax, payslips, export |
+| 6 ✅ | Staff, duty roster, payroll | Staff records with PRC license expiry warnings. Duty roster: regular days + shift per person, mark absent, add extra shifts, nurse-to-patient check per shift. Payroll by month from shifts worked: SSS, PhilHealth, Pag-IBIG, BIR withholding (employee and employer shares), printable payslips, CSV export |
 | 7 | Patient portal | Patients sign in online to view their own records: schedule, labs, PhilHealth sessions left, receipts. Needs the real backend first; the server must limit each patient to their own record |
 
 Bookkeeping rule: every session produces ledger lines `{ payer: 'PhilHealth' | 'Patient', item, qty, unitPrice, unitCost }`.
@@ -54,5 +54,6 @@ Verify against the current circulars at philhealth.gov.ph before launch.
 - `VITAL_LIMITS`, `MAX_GAIN_PCT`, `READING_EVERY_MIN`: medical director signs off
 - `WATER_LIMITS`, `WATER_TASKS`: confirm with the clinic's water system and DOH requirements
 - `MACHINES`: which chairs have the two 5008S units
+- `staff[].rate`, `PATIENTS_PER_NURSE`, `PAYROLL_RATES` (2025 tables): the clinic's accountant confirms; semi-monthly cutoffs, overtime, holiday pay and 13th month once we know how they pay today
 - Profit is gross margin on consumables only; staff and overhead arrive with payroll (phase 6)
 - Peritoneal dialysis (Z Benefit) billing is not in the POS yet; HD sessions only

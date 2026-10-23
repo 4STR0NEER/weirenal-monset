@@ -5,6 +5,7 @@ import {
   packages, inventory, patients, bookings, SHIFTS, DAYS, ISOLATION_CHAIRS, CHAIRS,
   SESSION_KIT, ADDONS, SELF_PAY_RATE, CLAIM_STATUSES, PHILHEALTH_SESSIONS_PER_YEAR,
   MACHINES, VITAL_LIMITS, MAX_GAIN_PCT, READING_EVERY_MIN, ACCESS_CHECKS, COMPLICATIONS, WATER_LIMITS, WATER_TASKS,
+  staff, STAFF_ROLES, STAFF_DAYS, NURSE_ROLES, PATIENTS_PER_NURSE, PAYROLL_RATES,
 } from './data.js'
 
 const mock = (value) => new Promise((r) => setTimeout(() => r(structuredClone(value)), 150))
@@ -127,6 +128,8 @@ export function getStats() {
     lowStock: inventory.filter((i) => i.stock <= i.reorderAt).length,
     nearCap: today.filter((s) => s.philhealthUsed >= 140).length,
     readingsDue: today.filter((s) => sheetSummary(sheetOf(date, s.patientId), s).due).length,
+    shortShifts: weekday(date) === 0 ? [] : rosterOf(date).shifts.filter((x) => x.short).map((x) => x.shift),
+    licensesExpiring: staff.filter((s) => ['expiring', 'expired'].includes(licenseStatus(s, date)?.state)).length,
     // shifts starting within the hour (or already running) without a passing water check
     waterDue: weekday(date) === 0 ? [] : Object.entries(SHIFTS)
       .filter(([shift, time]) => new Date(`${date}T${time}`) - Date.now() < 36e5 && !passed(latestCheck(date, shift)))
@@ -340,7 +343,7 @@ const SANE = {
   ap: [-500, 100, 'arterial pressure'], tmp: [-100, 600, 'TMP'], uf: [0, 10, 'UF removed'], cond: [10, 18, 'conductivity'],
   ufGoal: [0, 10, 'UF goal'], hours: [1, 8, 'duration'], heparinBolus: [0, 10000, 'heparin bolus'], heparinRate: [0, 5000, 'heparin per hour'],
   chlorine: [0, 5, 'chlorine'], conductivity: [0, 2000, 'conductivity'], hardness: [0, 50, 'hardness'], feedPressure: [0, 150, 'feed pressure'],
-  result: [0, 1e6, 'the result'],
+  result: [0, 1e6, 'the result'], rate: [0, 100000, 'rate per shift'],
 }
 function numbers(data, required, optional = []) {
   const out = {}
@@ -488,6 +491,132 @@ export function completeWaterTask(taskId, { date, result }) {
   return mock(waterTask(t, todayISO()))
 }
 
+// ---- Staff, duty roster, payroll ----
+// Duty = each person's regular days + shift, with per-date exceptions (absent, extra shift),
+// the same way the patient schedule works.
+const duty = [] // { date, staffId, shift, status: 'Absent' | 'Extra' }
+const LICENSE_WARN_DAYS = 60
+
+const licenseStatus = (s, today = todayISO()) => {
+  if (!s.licenseExpiry) return null
+  const days = daysBetween(today, s.licenseExpiry)
+  return { days, state: days < 0 ? 'expired' : days <= LICENSE_WARN_DAYS ? 'expiring' : 'valid' }
+}
+
+export const getStaff = () => mock(staff.map((s) => ({ ...s, licenseState: licenseStatus(s) })))
+
+export function getStaffMember(id) {
+  const s = staff.find((s) => s.id === Number(id))
+  return s ? mock(s) : fail('Staff member not found.')
+}
+
+// ponytail: in-memory like patients. Real version: POST /staff or PUT /staff/:id.
+export function saveStaff(data) {
+  const name = String(data.name ?? '').trim()
+  if (!name) return fail('Name is required.')
+  if (!STAFF_ROLES.includes(data.role)) return fail('Pick a role.')
+  if (!STAFF_DAYS[data.days] || !SHIFTS[data.shift]) return fail('Pick regular days and a shift.')
+  const [n, err] = data.rate === '' || data.rate == null ? [{}, null] : numbers(data, ['rate'])
+  if (err) return fail(err)
+  if (data.licenseExpiry && !/^\d{4}-\d{2}-\d{2}$/.test(data.licenseExpiry)) return fail('Check the license expiry date.')
+  const s = { name, role: data.role, phone: String(data.phone ?? '').slice(0, 30), days: data.days, shift: data.shift, rate: n.rate ?? null,
+    license: String(data.license ?? '').trim().slice(0, 20), licenseExpiry: data.licenseExpiry || '' }
+  if (NURSE_ROLES.includes(s.role) && !s.license) return fail('Nurses need a PRC license number.')
+  const i = staff.findIndex((x) => x.id === Number(data.id))
+  if (i >= 0) return mock((staff[i] = { ...staff[i], ...s }))
+  const created = { ...s, id: Math.max(0, ...staff.map((x) => x.id)) + 1 }
+  staff.push(created)
+  return mock(created)
+}
+
+function dutyFor(date) {
+  const day = staff
+    .filter((s) => STAFF_DAYS[s.days].includes(weekday(date)))
+    .map((s) => ({ staffId: s.id, shift: s.shift, status: 'On duty' }))
+  for (const d of duty.filter((d) => d.date === date)) {
+    const i = day.findIndex((x) => x.staffId === d.staffId)
+    if (i >= 0) day[i] = { ...day[i], ...d }
+    else day.push({ staffId: d.staffId, shift: d.shift, status: d.status })
+  }
+  return day.map((d) => ({ ...staff.find((s) => s.id === d.staffId), ...d })) // duty's shift wins over the regular one
+}
+const working = (d) => d.status !== 'Absent'
+
+function rosterOf(date) {
+  const people = dutyFor(date)
+  const sessions = daySessions(date).filter((s) => !freesChair(s))
+  return {
+    date, closed: weekday(date) === 0,
+    shifts: Object.entries(SHIFTS).map(([shift, time]) => {
+      const here = people.filter((p) => p.shift === shift)
+      const patients = sessions.filter((s) => s.shift === shift).length
+      const nurses = here.filter((p) => working(p) && NURSE_ROLES.includes(p.role)).length
+      return { shift, time, staff: here, patients, nurses, short: patients > 0 && nurses * PATIENTS_PER_NURSE < patients }
+    }),
+    available: staff.filter((s) => !people.some((p) => p.staffId === s.id)),
+  }
+}
+export const getRoster = (date) => mock(rosterOf(date))
+
+// status 'Absent' or 'Extra' records an exception; null puts the person back on their regular duty.
+export function saveDuty({ date, staffId, shift, status }) {
+  const s = staff.find((s) => s.id === Number(staffId))
+  if (!s) return fail('Staff member not found.')
+  if (weekday(date) === 0) return fail('The clinic is closed on Sundays.')
+  if (status != null && !['Absent', 'Extra'].includes(status)) return fail('Unknown duty status.')
+  const regular = STAFF_DAYS[s.days].includes(weekday(date))
+  if (status === 'Extra' && (regular || !SHIFTS[shift])) return fail(regular ? `${s.name} is already on duty that day.` : 'Pick a shift.')
+  if (status === 'Absent' && !regular && !duty.some((d) => d.date === date && d.staffId === s.id)) return fail(`${s.name} isn't on duty that day.`)
+  const i = duty.findIndex((d) => d.date === date && d.staffId === s.id)
+  if (i >= 0) duty.splice(i, 1)
+  // Marking an extra shift absent just cancels the extra shift.
+  if (status && !(status === 'Absent' && !regular)) duty.push({ date, staffId: s.id, shift: status === 'Extra' ? shift : s.shift, status })
+  return mock(null)
+}
+
+const r2 = (n) => Math.round(n * 100) / 100
+
+// Employee and employer shares for one month's gross pay.
+export function contributions(gross) {
+  if (!(gross > 0)) return { msc: 0, taxable: 0, employee: { sss: 0, philhealth: 0, pagibig: 0, tax: 0 }, employer: { sss: 0, philhealth: 0, pagibig: 0 }, deductions: 0, net: 0 }
+  const { sss, philhealth: ph, pagibig: pi, tax } = PAYROLL_RATES
+  const msc = Math.min(sss.maxMSC, Math.max(sss.minMSC, Math.round(gross / sss.step) * sss.step))
+  const phBase = Math.min(ph.ceiling, Math.max(ph.floor, gross))
+  const piBase = Math.min(pi.maxBase, gross)
+  const ee = {
+    sss: r2(msc * sss.employee),
+    philhealth: r2((phBase * ph.rate) / 2),
+    pagibig: r2(piBase * (gross <= pi.lowUpTo ? pi.employeeLow : pi.employee)),
+  }
+  const taxable = r2(gross - ee.sss - ee.philhealth - ee.pagibig)
+  const [over, base, rate] = tax.findLast(([over]) => taxable > over) ?? tax[0]
+  ee.tax = r2(base + (taxable - over) * rate)
+  const er = { sss: r2(msc * sss.employer + (msc < sss.ec[0] ? sss.ec[1] : sss.ec[2])), philhealth: ee.philhealth, pagibig: r2(piBase * pi.employer) }
+  return { msc, taxable, employee: ee, employer: er, deductions: r2(ee.sss + ee.philhealth + ee.pagibig + ee.tax), net: r2(gross - ee.sss - ee.philhealth - ee.pagibig - ee.tax) }
+}
+
+// ponytail: monthly payroll on shifts worked. Semi-monthly cutoffs, overtime, holiday pay and
+// 13th month come when the clinic confirms how they pay today.
+export function getPayroll(month) {
+  if (!/^\d{4}-\d{2}$/.test(month)) return fail('Pick a month.')
+  const today = todayISO()
+  const last = addDays(addDays(month + '-01', 32).slice(0, 7) + '-01', -1)
+  const end = last < today ? last : today
+  const worked = {}, absent = {}
+  for (let d = month + '-01'; d <= end; d = addDays(d, 1))
+    for (const p of dutyFor(d)) (working(p) ? worked : absent)[p.staffId] = ((working(p) ? worked : absent)[p.staffId] ?? 0) + 1
+  const rows = staff.filter((s) => s.rate != null).map((s) => {
+    const shifts = worked[s.id] ?? 0, gross = shifts * s.rate
+    return { staffId: s.id, name: s.name, role: s.role, rate: s.rate, shifts, absences: absent[s.id] ?? 0, gross, ...contributions(gross) }
+  })
+  const total = (f) => r2(rows.reduce((t, r) => t + f(r), 0))
+  return mock({
+    month, through: end, partial: end < last, rows,
+    totals: { gross: total((r) => r.gross), deductions: total((r) => r.deductions), net: total((r) => r.net),
+      employer: total((r) => r.employer.sss + r.employer.philhealth + r.employer.pagibig) },
+  })
+}
+
 // Demo history: a week of treatment sheets and a month of water checks. Not part of the real API.
 ;(function seedCare() {
   const rand = (n) => { const x = Math.sin(n) * 1e4; return x - Math.floor(x) }
@@ -535,6 +664,14 @@ export function completeWaterTask(taskId, { date, result }) {
       } else waterChecks.push(c)
     }
   }
+  // A few absences and one extra shift this past month.
+  const firstOn = (from, s) => { let d = from; while (!STAFF_DAYS[s.days].includes(weekday(d))) d = addDays(d, -1); return d }
+  duty.push({ date: firstOn(addDays(today, -3), staff[3]), staffId: 4, shift: staff[3].shift, status: 'Absent' })
+  duty.push({ date: firstOn(addDays(today, -12), staff[6]), staffId: 7, shift: staff[6].shift, status: 'Absent' })
+  let extra = addDays(today, -5)
+  while (weekday(extra) === 0 || STAFF_DAYS[staff[2].days].includes(weekday(extra))) extra = addDays(extra, -1)
+  duty.push({ date: extra, staffId: 3, shift: 'PM', status: 'Extra' })
+
   for (const [taskId, ago, result = null] of [['culture', 26, 12], ['endotoxin', 26, 0.03], ['disinfect', 33], ['sediment', 12], ['carbon', 95], ['chemical', 200]])
     waterTaskLog.push({ taskId, date: addDays(today, -ago), result, by: 'Tech Ramil' })
 })()

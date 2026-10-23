@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { PackageOpen, ShieldAlert, FileClock, CircleCheck, Droplets, Clock } from 'lucide-react'
+import { PackageOpen, ShieldAlert, FileClock, CircleCheck, Droplets, Clock, Users, BadgeAlert } from 'lucide-react'
 import { getStats, getTodaySessions, currentUser, useLoad, todayISO } from '../api.js'
 import { PHILHEALTH_SESSIONS_PER_YEAR } from '../data.js'
 import { AnimatedNumber } from '../components/vengeance/animated-number.jsx'
@@ -56,10 +56,12 @@ export default function Overview() {
           <div className="attention">
             {stats?.waterDue.length > 0 && <Item to="/app/water" icon={Droplets} title={`Water check due: ${stats.waterDue.join(', ')} shift`} sub="Log it before patients go on" />}
             {stats?.readingsDue > 0 && <Item to="/app/treatments" icon={Clock} title={`${stats.readingsDue} machine readings due`} sub="Over an hour since the last one" />}
+            {stats?.shortShifts.length > 0 && <Item to="/app/roster" icon={Users} title={`Short of nurses: ${stats.shortShifts.join(', ')} shift`} sub="Add an extra shift on the duty roster" />}
+            {stats?.licensesExpiring > 0 && <Item to="/app/staff" icon={BadgeAlert} title={`${stats.licensesExpiring} PRC licenses to renew`} sub="Expired or expiring within 60 days" />}
             {stats?.nearCap > 0 && <Item to="/app/crm" icon={ShieldAlert} title={`${stats.nearCap} near the 156-session cap`} sub="Talk to them about the rest of the year" />}
             {stats?.lowStock > 0 && <Item to="/app/inventory" icon={PackageOpen} title={`${stats.lowStock} items to reorder`} sub="At or below reorder level" />}
             <Item to="/app/philhealth" icon={FileClock} title="Pending PhilHealth claims" sub="Submit this week’s sessions" />
-            {stats && !stats.nearCap && !stats.lowStock && !stats.waterDue.length && !stats.readingsDue && <Item to="/app/schedule" icon={CircleCheck} calm title="All clear" sub="Nothing urgent today" />}
+            {stats && !stats.nearCap && !stats.lowStock && !stats.waterDue.length && !stats.readingsDue && !stats.shortShifts.length && !stats.licensesExpiring && <Item to="/app/schedule" icon={CircleCheck} calm title="All clear" sub="Nothing urgent today" />}
           </div>
         </section>
       </div>

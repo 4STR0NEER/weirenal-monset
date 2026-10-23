@@ -1,6 +1,6 @@
 import { NavLink, Navigate, Outlet, useLocation, useNavigate } from 'react-router'
 import {
-  LayoutDashboard, Users, CalendarDays, HeartPulse, Droplets, ReceiptText, FileCheck2, Package, Mail, ChartColumn, Wallet, LogOut,
+  LayoutDashboard, Users, CalendarDays, HeartPulse, Droplets, ReceiptText, FileCheck2, Package, Mail, ChartColumn, Wallet, LogOut, Contact, CalendarClock,
 } from 'lucide-react'
 import { currentUser, logout } from '../api.js'
 import Logo from '../components/Logo.jsx'
@@ -18,7 +18,9 @@ export const MODULES = [
   { path: 'water', label: 'Water room', phase: 3, group: 'Operations', icon: Droplets },
   { path: 'inventory', label: 'Inventory', phase: 1, group: 'Operations', icon: Package },
   { path: 'crm', label: 'CRM & Reminders', phase: 5, group: 'Operations', icon: Mail },
-  { path: 'payroll', label: 'Payroll', phase: 6, group: 'Operations', icon: Wallet, blurb: 'Staff records, shifts worked, pay computation with SSS, PhilHealth, Pag-IBIG and withholding tax, payslips.' },
+  { path: 'staff', label: 'Staff', phase: 6, group: 'Team', icon: Contact },
+  { path: 'roster', label: 'Duty roster', phase: 6, group: 'Team', icon: CalendarClock },
+  { path: 'payroll', label: 'Payroll', phase: 6, group: 'Team', icon: Wallet },
 ]
 
 const GROUPS = [...new Set(MODULES.map((m) => m.group))]

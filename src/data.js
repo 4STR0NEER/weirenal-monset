@@ -154,3 +154,37 @@ export const WATER_TASKS = [
   { id: 'carbon', name: 'Carbon tank replacement', every: 180 },
   { id: 'chemical', name: 'Full chemical analysis', every: 365 },
 ]
+
+// ---- Staff ----
+// days uses STAFF_DAYS keys; rate = pay per shift worked (null = paid outside payroll, e.g. professional fees).
+// All staff except the medical director (named on the discovery form) are fictional. PLACEHOLDER rates.
+export const STAFF_ROLES = ['Head nurse', 'Nurse', 'Nephrologist', 'Dialysis technician', 'Front desk', 'Patient care aide']
+export const STAFF_DAYS = { ...DAYS, MonSat: [1, 2, 3, 4, 5, 6] }
+export const NURSE_ROLES = ['Head nurse', 'Nurse']
+export const PATIENTS_PER_NURSE = 4 // PLACEHOLDER: confirm the DOH staffing ratio for HD units
+
+export const staff = [
+  { id: 1, name: 'Joy Navarro', role: 'Head nurse', phone: '0917 555 2101', days: 'MonSat', shift: 'AM', rate: 1800, license: '0712345', licenseExpiry: '2027-03-15' },
+  { id: 2, name: 'Carlo Mendez', role: 'Nurse', phone: '0917 555 2102', days: 'MWF', shift: 'AM', rate: 1400, license: '0723456', licenseExpiry: '2027-08-30' },
+  { id: 3, name: 'Ana Villareal', role: 'Nurse', phone: '0917 555 2103', days: 'TThS', shift: 'AM', rate: 1400, license: '0734567', licenseExpiry: '2028-01-20' },
+  { id: 4, name: 'Paolo Lim', role: 'Nurse', phone: '0917 555 2104', days: 'MWF', shift: 'Mid', rate: 1400, license: '0745678', licenseExpiry: '2027-05-11' },
+  { id: 5, name: 'Grace Uy', role: 'Nurse', phone: '0917 555 2105', days: 'TThS', shift: 'Mid', rate: 1400, license: '0756789', licenseExpiry: '2026-12-01' },
+  { id: 6, name: 'Mark Tan', role: 'Nurse', phone: '0917 555 2106', days: 'MWF', shift: 'PM', rate: 1400, license: '0767890', licenseExpiry: '2027-10-05' },
+  { id: 7, name: 'Rhea Santos', role: 'Nurse', phone: '0917 555 2107', days: 'TThS', shift: 'PM', rate: 1400, license: '0778901', licenseExpiry: '2026-10-10' },
+  { id: 8, name: 'Ramil Ocampo', role: 'Dialysis technician', phone: '0917 555 2108', days: 'MonSat', shift: 'AM', rate: 1200, license: '', licenseExpiry: '' },
+  { id: 9, name: 'Mia Dizon', role: 'Front desk', phone: '0917 555 2109', days: 'MonSat', shift: 'AM', rate: 900, license: '', licenseExpiry: '' },
+  { id: 10, name: 'Lea Garcia', role: 'Front desk', phone: '0917 555 2110', days: 'MonSat', shift: 'PM', rate: 900, license: '', licenseExpiry: '' },
+  { id: 11, name: 'Ben Flores', role: 'Patient care aide', phone: '0917 555 2111', days: 'MonSat', shift: 'Mid', rate: 800, license: '', licenseExpiry: '' },
+  { id: 12, name: 'Dr. Alexander U. Tan', role: 'Nephrologist', phone: '', days: 'MonSat', shift: 'AM', rate: null, license: '0098765', licenseExpiry: '2028-06-30' },
+  { id: 13, name: 'Dr. Paula Reyes', role: 'Nephrologist', phone: '', days: 'MWF', shift: 'PM', rate: null, license: '0109876', licenseExpiry: '2027-02-14' },
+]
+
+// Monthly payroll deductions, Philippines. PLACEHOLDER: 2025 schedules; the clinic's accountant
+// confirms the current SSS, PhilHealth, Pag-IBIG and BIR tables before anyone is paid.
+export const PAYROLL_RATES = {
+  sss: { employee: 0.05, employer: 0.10, minMSC: 5000, maxMSC: 35000, step: 500, ec: [15000, 10, 30] }, // ec: [MSC cutoff, below, at/above]
+  philhealth: { rate: 0.05, floor: 10000, ceiling: 100000 }, // split 50/50
+  pagibig: { employee: 0.02, employeeLow: 0.01, lowUpTo: 1500, employer: 0.02, maxBase: 10000 },
+  // BIR monthly withholding (TRAIN, 2023+): [over, base tax, rate on the excess]
+  tax: [[0, 0, 0], [20833, 0, 0.15], [33333, 1875, 0.2], [66667, 8541.8, 0.25], [166667, 33541.8, 0.3], [666667, 183541.8, 0.35]],
+}
